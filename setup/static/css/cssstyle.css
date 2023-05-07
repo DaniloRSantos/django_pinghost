@@ -1,0 +1,135 @@
+/* Estilos CSS para a página */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  background-color: #f0f0f0;
+}
+
+header {
+  background-color: #333;
+  color: white;
+  padding: 10px;
+}
+
+nav {
+  float: left;
+  width: 10%;
+  background-color: #fff;
+  height: calc(100vh - 175px);
+  overflow: auto;
+  border-right: 1px solid #ddd;
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+li a {
+  display: block;
+  color: #333;
+  padding: 8px 16px;
+  text-decoration: none;
+}
+
+li a.active {
+  background-color: #4CAF50;
+  color: white;
+}
+
+li a:hover:not(.active) {
+  background-color: #ddd;
+  color: #333;
+}
+
+main {
+  padding: 20px;
+  overflow: scroll;
+  height: calc(100vh - 300px); /* subtrai a altura do header e do footer */
+}
+
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th, td {
+  text-align: left;
+  padding: 8px;
+}
+
+th {
+  background-color: #4CAF50;
+  color: white;
+}
+
+tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+footer {
+  background-color: #333;
+  color: white;
+  padding: 10px;
+  text-align: center;
+}
+
+img {
+  width: 16px;
+  height: 16px;
+}
+input[type="checkbox"] {
+  transform: scale(1.5);
+}
+
+.buttons {
+  display: flex;
+  justify-content: flex-end;
+  padding: 20px;
+}
+
+button {
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+button:hover {
+  background-color: #3e8e41;
+}
+
+#btn-incluir {
+  background-color: #008CBA;
+}
+
+#btn-incluir:hover {
+  background-color: #007a9b;
+}
+
+#btn-excluir {
+  background-color: #f44336;
+}
+
+#btn-excluir:hover {
+  background-color: #d32f2f;
+}
+
+#btn-editar {
+  background-color: #4CAF50;
+}
+
+#btn-editar:hover {
+  background-color: #3e8e41;
+}
+
