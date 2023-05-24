@@ -45,7 +45,8 @@ li a:hover:not(.active) {
 }
 
 main {
-  padding: 20px;
+  margin: 0;
+  padding: 10px;
   overflow: scroll;
   height: calc(100vh - 300px); /* subtrai a altura do header e do footer */
 }

@@ -1,25 +1,9 @@
+{% extends 'ph/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>Meu Site</title>
-    <link rel="stylesheet" href="{% static '/css/cssstyle.css' %}">
-  </head>
-  <body>
-    <header>
-      <h1>Meu Site</h1>
-    </header>
-    <nav>
-      <ul>
-        <li><a href="#" class="active">Início</a></li>
-        <li><a href="#">Produtos</a></li>
-        <li><a href="#">Contato</a></li>
-      </ul>
-    </nav>
+{% block content %}
     <main>
     <h2>Hosts</h2>
-    <table  >
+    <table>
       <thead>
         <tr>
           <th></th>
@@ -29,35 +13,28 @@
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td><input type="checkbox"></td>
-          <td>Host 1</td>
-          <td>192.168.0.1</td>
-          <td><img src="{% static 'img/ativo.png' %}" alt="Ativo"></td>
-        </tr>
-        <tr>
-          <td><input type="checkbox"></td>
-          <td>Host 2</td>
-          <td>192.168.0.2</td>
-          <td><img src="{% static 'img/inativo.png' %}" alt="Inativo"></td>
-        </tr>
-        <tr>
-          <td><input type="checkbox"></td>
-          <td>Host 3</td>
-          <td>192.168.0.3</td>
-          <td><img src="{% static 'img/ativo.png' %}" alt="Ativo"></td>
-        </tr>
+        {% for linha in dados %}
+          <tr>
+            <td><input type="checkbox"></td>
+            <td>{{ linha.2 }}</td>
+            <td>{{ linha.0 }}</td>
+            <td>
+              {% if linha.5 == 'ok' %}
+                <img src="{% static 'img/ativo.png' %}" alt="Ativo">
+              {% else %}
+                <img src="{% static 'img/inativo.png' %}" alt="Inativo">
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
       </tbody>
     </table>
     </main>
     <div class="buttons">
       <button id="btn-incluir">Incluir</button>
-      <button id="btn-excluir"style="display:none;">Excluir</button>
+      <button id="btn-excluir" style="display:none;">Excluir</button>
       <button id="btn-editar" style="display:none;">Editar</button>
     </div>
     <script src="{% static 'js/script.js' %}"></script>
-  </body>
-  <footer>
-    <p>Meu Site - Todos os direitos reservados.</p>
-  </footer>
-</html>
+    <script src="{% static 'scripts/ph_script.js' %}"></script>
+{% endblock %}

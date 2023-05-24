@@ -1,0 +1,23 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Meu Site</title>
+    <link rel="stylesheet" href="{% static '/css/cssstyle.css' %}">
+  </head>
+  <body>
+    <header>
+      <h1>Meu Site</h1>
+    </header>
+    <nav>
+      <ul>
+        <li><a href="#" class="active">Início</a></li>
+        <li><a href="#">Produtos</a></li>
+        <li><a href="#">Contato</a></li>
+      </ul>
+    </nav>
+    {% block content %}{% endblock %}
+    {% include 'ph/partials/_footer.html' %}
+  </body>
+</html>
