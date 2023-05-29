@@ -1,52 +1,91 @@
 from django.shortcuts import render
-import csv
-import subprocess
-import datetime
+from ph.models import EnderecoBusca, Hosts
+import socket
+from django.utils import timezone
 
+# Função para verificar a disponibilidade do host
 
 def check_availability(ip_address):
-        command = ['ping', '-n', '1', ip_address]
-        ping_results = subprocess.run(command, capture_output=True, text=True)
-        return ping_results.returncode == 0, ping_results.stdout
+    try:
+        socket.create_connection((ip_address, 80), timeout=1)
+        return True
+    except Exception:
+        return False
 
 def index(request):
-    # Nome do arquivo CSV
-    nome_arquivo = 'static\data\enderecos.csv'
+    # Obter todos os objetos de Hosts
+    hosts = Hosts.objects.all()
 
-    # Função para verificar a disponibilidade do host
-
-
-    # Ler os dados do arquivo CSV existente
-    dados = []
-    with open(nome_arquivo, 'r', newline='', encoding='utf-8') as arquivo_csv:
-        leitor_csv = csv.reader(arquivo_csv)
-        cabecalho = next(leitor_csv)  # Ler o cabeçalho
-        dados = list(leitor_csv)  # Ler os dados restantes
-
-    # Iterar pelos dados e atualizar as colunas desejadas
-    for linha in dados:
-        endereco_ip = linha[0]  # Obter o endereço IP da coluna desejada
+    # Iterar pelos objetos de Hosts e atualizar as colunas desejadas
+    for host in hosts:
+        endereco_ip = host.ip_host  # Obter o endereço IP do objeto Host
 
         # Verificar a disponibilidade do host usando a função check_availability
-        host_disponivel, ping_output = check_availability(endereco_ip)
-
+        host_disponivel = check_availability(endereco_ip)
         if host_disponivel:
-            # Se o ping for bem-sucedido, atualizar "ok" na coluna desejada
-            linha[5] = "ok"
-            linha[6] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            # Se o ping for bem-sucedido, atualizar o status do host para True
+            host.status_host = True
+            
         else:
-            # Se o ping falhar, atualizar a mensagem de erro na coluna desejada
-            linha[5] = "Ping falhou"
-            linha[6] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            # Se o ping falhar, atualizar o status do host para False
+            host.status_host = False
+        
+       
+        host.time_host = timezone.now()
+        host.save()  # Salvar as alterações no objeto Host
 
-    # Salvar os dados atualizados no arquivo existente
-    with open(nome_arquivo, 'w', newline='', encoding='utf-8') as arquivo_csv_atualizado:
-        escritor_csv = csv.writer(arquivo_csv_atualizado)
-        escritor_csv.writerow(cabecalho)  # Escrever o cabeçalho
-        escritor_csv.writerows(dados)  # Escrever os dados atualizados
+    # Obter todos os objetos de Hosts novamente após as atualizações
+    hosts_atualizados = Hosts.objects.all()
 
     context = {
-        'dados': dados,
+        'hosts': hosts_atualizados,
+        'imagem_inicial': 'loading.gif',
     }
 
     return render(request, 'ph\index.html', context)
+
+def cadastrar_host(request):
+    if request.method == 'POST':
+        # Obter os dados enviados pelo formulário para o host
+        ip_host = request.POST['ip_host']
+        dns_host = request.POST['dns_host']
+        nome_host = request.POST['nome_host']
+        categoria_host = request.POST['categoria_host']
+
+        # Criar um novo objeto Hosts com os dados fornecidos
+        novo_host = Hosts.objects.create(
+            ip_host=ip_host,
+            dns_host=dns_host,
+            nome_host=nome_host,
+            categoria_host=categoria_host,
+            time_host=timezone.now(),
+        )
+
+        # Obter os dados enviados pelo formulário para o endereço
+        cep = request.POST['cep']
+        logradouro = request.POST['logradouro']
+        numero = request.POST['numero']
+        complemento = request.POST['complemento']
+        bairro = request.POST['bairro']
+        cidade = request.POST['cidade']
+        estado = request.POST['estado']
+
+        # Criar um novo objeto EnderecoBusca com os dados fornecidos
+        novo_endereco = EnderecoBusca.objects.create(
+            cep=cep,
+            logradouro=logradouro,
+            numero=numero,
+            complemento=complemento,
+            bairro=bairro,
+            cidade=cidade,
+            estado=estado,
+        )
+
+        # Associar o endereço criado ao host
+        novo_host.endereco = novo_endereco
+        novo_host.save()
+
+        # Redirecionar para a página de sucesso ou fazer o processamento necessário
+
+    context = {}
+    return render(request, 'ph\cadastro_host.html', context)

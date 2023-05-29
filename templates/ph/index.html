@@ -1,40 +1,39 @@
 {% extends 'ph/base.html' %}
 {% load static %}
 {% block content %}
-    <main>
     <h2>Hosts</h2>
     <table>
       <thead>
         <tr>
           <th></th>
           <th>Nome do Host</th>
-          <th>Endereço IP</th>
+          <th>DNS</th>
+          <th>Endereço IP</th>          
           <th>Status</th>
         </tr>
       </thead>
       <tbody>
-        {% for linha in dados %}
-          <tr>
+        {% for host in hosts %}
+        <tr>
             <td><input type="checkbox"></td>
-            <td>{{ linha.2 }}</td>
-            <td>{{ linha.0 }}</td>
+            <td>{{ host.nome_host }}</td>
+            <td>{{ host.dns_host}}</td>
+            <td>{{ host.ip_host }}</td>
             <td>
-              {% if linha.5 == 'ok' %}
-                <img src="{% static 'img/ativo.png' %}" alt="Ativo">
-              {% else %}
+                {% if host.status_host == 1 %}
+                  <img src="{% static 'img/ativo.png' %}" alt="Ativo">
+                {% elif host.status_host == 0 %}
                 <img src="{% static 'img/inativo.png' %}" alt="Inativo">
-              {% endif %}
+                {% else %}
+                  <img src="{% static 'img/loading.gif' %}" alt="Carregando">
+                {% endif %}
             </td>
-          </tr>
+        </tr>
         {% endfor %}
       </tbody>
-    </table>
-    </main>
-    <div class="buttons">
-      <button id="btn-incluir">Incluir</button>
-      <button id="btn-excluir" style="display:none;">Excluir</button>
-      <button id="btn-editar" style="display:none;">Editar</button>
-    </div>
-    <script src="{% static 'js/script.js' %}"></script>
-    <script src="{% static 'scripts/ph_script.js' %}"></script>
-{% endblock %}
+    </table>    
+    {% include 'ph/partials/_buttons_crud.html' %}
+    {% endblock %}
+
+
+    

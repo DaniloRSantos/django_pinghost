@@ -1,0 +1,44 @@
+{% extends 'ph/base.html' %}
+{% load static %}
+{% block content %}
+  <h1 class="h1-fixed">Cadastro de Hosts</h1>
+  <form method="POST" action="{% url 'cadastrar_host' %}">
+    {% csrf_token %}
+    <div class="form-row">
+      <div class="input-column">
+        <label for="ip_host">IP do Host:</label>
+        <input type="text" id="ip_host" name="ip_host" required>
+        <label for="dns_host">DNS do Host:</label>
+        <input type="text" id="dns_host" name="dns_host" required>
+        <label for="nome_host">Nome do Host:</label>
+        <input type="text" id="nome_host" name="nome_host" required>
+        <label for="categoria_host">Categoria do Host:</label>
+        <input type="text" id="categoria_host" name="categoria_host" required>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="input-column">
+        <label for="cep">CEP:</label>
+        <input type="text" id="cep" name="cep" required>
+        <label for="logradouro">Logradouro:</label>
+        <input type="text" id="logradouro" name="logradouro" required>
+        <label for="numero">Número:</label>
+        <input type="text" id="numero" name="numero" required>
+        <label for="complemento">Complemento:</label>
+        <input type="text" id="complemento" name="complemento">
+        <label for="bairro">Bairro:</label>
+        <input type="text" id="bairro" name="bairro" required>
+        <label for="cidade">Cidade:</label>
+        <input type="text" id="cidade" name="cidade" required>
+        <label for="estado">Estado:</label>
+        <input type="text" id="estado" name="estado" required>
+        <label for="latitude">Latitude:</label>
+        <input type="text" id="latitude" name="latitude">
+        <label for="longitude">Longitude:</label>
+        <input type="text" id="longitude" name="longitude">
+      </div>
+    </div>
+    
+
+    {% include 'ph/partials/_buttons_crud.html' %}
+{% endblock %}

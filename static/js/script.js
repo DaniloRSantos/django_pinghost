@@ -19,27 +19,7 @@ checkboxes.forEach(checkbox => {
   });
 });
 
-// script.js
-function checkHostAvailability(ipAddress, statusId) {
-  var xhr = new XMLHttpRequest();
-  xhr.open('GET', 'check_availability?ip=' + ipAddress, true);
-  xhr.onreadystatechange = function () {
-    if (xhr.readyState === 4 && xhr.status === 200) {
-      var result = JSON.parse(xhr.responseText);
-      console.log(result); // Exibir o objeto JSON no console
-    
-      var hostAvailable = result.host_available;
-      console.log("Host disponível:", hostAvailable); // Exibir o valor de hostAvailable no console
 
-      if (hostAvailable) {
-        document.getElementById(statusId).src = '/static/img/ativo.png';
-      } else {
-        document.getElementById(statusId).src = '/static/img/inativo.png';
-      }
-    }
-  };
-  xhr.send();
-  };
 
 
 

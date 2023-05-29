@@ -3,5 +3,5 @@ from ph import views
 
 urlpatterns = [
     path('', views.index),
-    path('check_availability', views.check_availability, name='check_availability'),
+    path('cadastro/', views.cadastrar_host, name='cadastrar_host'),
 ]

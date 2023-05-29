@@ -1,24 +1,60 @@
 /* Estilos CSS para a página */
-body {
+html {
+  height: 100%;
   margin: 0;
   padding: 0;
   font-family: sans-serif;
   background-color: #f0f0f0;
 }
 
-header {
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  background-color: #f0f0f0;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex-grow: 1;
+  padding: 30px;
+  margin-bottom: -60px; /* Altere o valor para a altura do footer */  
+}
+
+/* Restante do seu CSS... */
+
+footer {
   background-color: #333;
   color: white;
   padding: 10px;
+  text-align: center;
+  
+  height: 30px; /* Altere o valor para a altura desejada */
+}
+
+.buttons {
+  position: relative; /* Adicione esta propriedade */
+  background-color: #f0f0f0; /* Adicione esta propriedade */
+  padding: 20px;
+}
+
+
+header {
+  position: sticky;
+  top: 0;
+  background-color: #333;
+  color: white;
+  padding: 10px;
+  z-index: 1; /* Adicione esta propriedade para garantir que o header fique acima dos demais elementos */
 }
 
 nav {
-  float: left;
   width: 10%;
   background-color: #fff;
-  height: calc(100vh - 175px);
-  overflow: auto;
   border-right: 1px solid #ddd;
+  position: sticky;
+  top: 0;
 }
 
 ul {
@@ -44,16 +80,11 @@ li a:hover:not(.active) {
   color: #333;
 }
 
-main {
-  padding: 20px;
-  overflow: scroll;
-  height: calc(100vh - 300px); /* subtrai a altura do header e do footer */
-}
 
 
 table {
   border-collapse: collapse;
-  width: 100%;
+  width: 100%;  
 }
 
 th, td {
@@ -70,25 +101,41 @@ tr:nth-child(even) {
   background-color: #f2f2f2;
 }
 
+/* Restante do seu CSS... */
+
 footer {
   background-color: #333;
   color: white;
   padding: 10px;
   text-align: center;
+  margin-top: auto;
+  width: 100%;
+  position: fixed;
+  bottom: 0;
 }
+
 
 img {
   width: 16px;
   height: 16px;
 }
+
 input[type="checkbox"] {
   transform: scale(1.5);
 }
 
+
+
 .buttons {
   display: flex;
   justify-content: flex-end;
-  padding: 20px;
+}
+
+.container {
+  display: flex;
+  flex-direction: row;
+  min-height: calc(100vh - 2 * 10px); /* Subtrai o espaço do header e do footer */
+  max-height: calc(80h - 2 * 10px); /* Defina a altura máxima desejada */
 }
 
 button {
@@ -131,5 +178,25 @@ button:hover {
 
 #btn-editar:hover {
   background-color: #3e8e41;
+}
+.label-column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-right: 10px;
+}
+
+.input-column {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+
+label {
+  margin-bottom: 5px;
+}
+
+input[type="text"] {
+  padding: 5px;
 }
 
