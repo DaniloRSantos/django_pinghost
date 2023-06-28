@@ -1,7 +1,13 @@
 from django.shortcuts import render
 from ph.models import EnderecoBusca, Hosts
 import socket
+from django.shortcuts import redirect, render
 from django.utils import timezone
+from django.contrib import messages
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 # Função para verificar a disponibilidade do host
 
@@ -60,6 +66,9 @@ def cadastrar_host(request):
             categoria_host=categoria_host,
             time_host=timezone.now(),
         )
+        
+        novo_host.save()
+        id_novo_host = novo_host.id
 
         # Obter os dados enviados pelo formulário para o endereço
         cep = request.POST['cep']
@@ -70,6 +79,8 @@ def cadastrar_host(request):
         cidade = request.POST['cidade']
         estado = request.POST['estado']
 
+        host = Hosts.objects.get(id=id_novo_host)
+
         # Criar um novo objeto EnderecoBusca com os dados fornecidos
         novo_endereco = EnderecoBusca.objects.create(
             cep=cep,
@@ -79,13 +90,50 @@ def cadastrar_host(request):
             bairro=bairro,
             cidade=cidade,
             estado=estado,
+            host_id=id_novo_host
         )
 
         # Associar o endereço criado ao host
         novo_host.endereco = novo_endereco
-        novo_host.save()
+
+        #Exibir mensagem de sucesso
+        messages.success(request, 'Host cadastrado com sucesso!')
 
         # Redirecionar para a página de sucesso ou fazer o processamento necessário
 
     context = {}
     return render(request, 'ph\cadastro_host.html', context)
+    
+
+def excluir_hosts(request):
+    logger.info("Função Excluir")
+    if request.method == 'POST':        
+        # Obter os IDs dos hosts selecionados para exclusão
+        host_ids = request.POST.getlist('host_checkbox')  # Lista de IDs dos hosts selecionados
+        print("IDs dos hosts selecionados:", host_ids)
+
+        for host_id in host_ids:
+            logger.info("Dentro do For")
+            host = Hosts.objects.get(id=host_id)
+
+        hosts_selecionados = Hosts.objects.filter(id__in=host_ids)
+        for host in hosts_selecionados:
+            logger.info(f"Host selecionados: {host.nome_host}, IP: {host.ip_host}, DNS: {host.dns_host}")
+
+            
+        # Verificar se foram selecionados hosts para exclusão
+        if host_ids:
+            # Excluir os hosts correspondentes aos IDs selecionados
+            hosts_excluidos = Hosts.objects.filter(id__in=host_ids).delete()
+
+            # Obter o contador de hosts excluídos do dicionário
+            contador_hosts_excluidos = hosts_excluidos[0]
+            # Exibir mensagem de sucesso com o número de hosts excluídos
+            messages.success(request, f'{contador_hosts_excluidos} hosts excluídos com sucesso!')
+
+        # Redirecionar de volta para a página de hosts
+        return redirect('index')
+    else:
+        messages.error(request, 'Falha ao excluir, Por favor tente novamente.')
+        # Redirecionar de volta para a página de hosts
+        return redirect('index')

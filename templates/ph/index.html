@@ -2,38 +2,54 @@
 {% load static %}
 {% block content %}
     <h2>Hosts</h2>
-    <table>
-      <thead>
-        <tr>
-          <th></th>
-          <th>Nome do Host</th>
-          <th>DNS</th>
-          <th>Endereço IP</th>          
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for host in hosts %}
-        <tr>
-            <td><input type="checkbox"></td>
-            <td>{{ host.nome_host }}</td>
-            <td>{{ host.dns_host}}</td>
-            <td>{{ host.ip_host }}</td>
-            <td>
-                {% if host.status_host == 1 %}
-                  <img src="{% static 'img/ativo.png' %}" alt="Ativo">
-                {% elif host.status_host == 0 %}
-                <img src="{% static 'img/inativo.png' %}" alt="Inativo">
-                {% else %}
-                  <img src="{% static 'img/loading.gif' %}" alt="Carregando">
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>    
-    {% include 'ph/partials/_buttons_crud.html' %}
-    {% endblock %}
-
+    
 
     
+    <table>
+        <thead>
+            <tr>
+                <th></th>
+                <th>Nome do Host</th>
+                <th>DNS</th>
+                <th>Endereço IP</th>          
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for host in hosts %}
+            <tr>
+                <td><input type="checkbox" name="host_checkbox" value="{{ host.id }}"></td>
+                <td>{{ host.nome_host }}</td>
+                <td>{{ host.dns_host}}</td>
+                <td>{{ host.ip_host }}</td>
+                <td>
+                    {% if host.status_host == 1 %}
+                        <img src="{% static 'img/ativo.png' %}" alt="Ativo">
+                    {% elif host.status_host == 0 %}
+                        <img src="{% static 'img/inativo.png' %}" alt="Inativo">
+                    {% else %}
+                        <img src="{% static 'img/loading.gif' %}" alt="Carregando">
+                    {% endif %}
+                </td>
+                <td>
+
+                </td>
+            </tr>
+            {% endfor %}
+            <div class="buttons">
+                <form method="GET" action="{% url 'cadastrar_host' %}">
+                    {% csrf_token %}
+                    <button type="submit" id="btn-incluir">Incluir</button>
+                </form>
+                <form method="POST" action="{% url 'excluir_hosts' %}">
+                    {% csrf_token %}
+                    <button id="btn-excluir" style="display:none;">Excluir</button>
+                    <button id="btn-editar" style="display:none;">Editar</button>
+                </form>
+            </div>
+        </tbody>
+    </table>    
+
+    <script src="{% static 'js/script.js' %}"></script>
+{% endblock %}

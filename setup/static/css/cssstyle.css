@@ -134,8 +134,6 @@ input[type="checkbox"] {
 .container {
   display: flex;
   flex-direction: row;
-  min-height: calc(100vh - 2 * 10px); /* Subtrai o espaço do header e do footer */
-  max-height: calc(80h - 2 * 10px); /* Defina a altura máxima desejada */
 }
 
 button {
@@ -198,5 +196,28 @@ label {
 
 input[type="text"] {
   padding: 5px;
+  max-width: 200px; 
 }
 
+.medium-input {
+  width: 300px;
+}
+
+.short-input {
+  width: 150px;
+}
+
+.form-row {
+  display: flex;
+  padding: 40px;
+}
+
+.input-container {
+  display: flex;
+  
+}
+
+.input-column {
+  flex-grow: 1;
+  margin-right: 20px;
+}

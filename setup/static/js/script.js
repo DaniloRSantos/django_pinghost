@@ -18,3 +18,25 @@ checkboxes.forEach(checkbox => {
     }
   });
 });
+
+
+
+function confirmarExclusao() {
+  // Capturar os checkboxes selecionados
+  var checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+
+  // Verificar se há algum checkbox selecionado
+  if (checkboxes.length > 0) {
+    // Exibir a mensagem de confirmação
+    var confirmacao = confirm('Tem certeza de que deseja excluir ' + checkboxes.length + ' item(s)?');
+
+    // Verificar se o usuário confirmou a exclusão
+    if (confirmacao) {
+      // Submeter o formulário para realizar a exclusão
+      document.getElementById('form-excluir').submit();
+    }
+  } else {
+    alert('Selecione pelo menos um item para excluir.');
+  }
+}
+
