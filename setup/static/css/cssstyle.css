@@ -1,25 +1,20 @@
 /* Estilos CSS para a página */
 html {
   height: 100%;
-  margin: 0;
-  padding: 0;
-  font-family: sans-serif;
   background-color: #f0f0f0;
 }
 
 body {
-  margin: 0;
-  padding: 0;
-  font-family: sans-serif;
-  background-color: #f0f0f0;
+  margin: 0px;
+  display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  min-height: 97vh; 
 }
 
 main {
   flex-grow: 1;
   padding: 30px;
-  margin-bottom: -60px; /* Altere o valor para a altura do footer */  
+   
 }
 
 /* Restante do seu CSS... */
@@ -27,10 +22,9 @@ main {
 footer {
   background-color: #333;
   color: white;
-  padding: 10px;
-  text-align: center;
-  
-  height: 30px; /* Altere o valor para a altura desejada */
+  text-align: center;  
+  height: 30px;
+  max-width: 98%
 }
 
 .buttons {
@@ -41,20 +35,16 @@ footer {
 
 
 header {
-  position: sticky;
   top: 0;
   background-color: #333;
   color: white;
   padding: 10px;
-  z-index: 1; /* Adicione esta propriedade para garantir que o header fique acima dos demais elementos */
 }
 
 nav {
   width: 10%;
   background-color: #fff;
   border-right: 1px solid #ddd;
-  position: sticky;
-  top: 0;
 }
 
 ul {
@@ -110,7 +100,6 @@ footer {
   text-align: center;
   margin-top: auto;
   width: 100%;
-  position: fixed;
   bottom: 0;
 }
 
@@ -122,8 +111,8 @@ img {
 
 input[type="checkbox"] {
   transform: scale(1.5);
+  
 }
-
 
 
 .buttons {
@@ -134,6 +123,8 @@ input[type="checkbox"] {
 .container {
   display: flex;
   flex-direction: row;
+  flex-grow: 1;
+
 }
 
 button {
@@ -179,7 +170,7 @@ button:hover {
 }
 .label-column {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: flex-end;
   margin-right: 10px;
 }
@@ -187,7 +178,9 @@ button:hover {
 .input-column {
   display: flex;
   flex-direction: column;
-  margin-bottom: 10px;
+  margin-bottom: 10px;  
+  flex-grow: 1;
+  margin-right: 20px;
 }
 
 label {
@@ -208,16 +201,97 @@ input[type="text"] {
 }
 
 .form-row {
-  display: flex;
-  padding: 40px;
+  max-height: 100%; /* Defina a altura máxima desejada */
+  overflow-y: auto; /* Adiciona uma barra de rolagem vertical quando necessário */
+  padding: 20px;
+  align-items:
+
 }
 
 .input-container {
   display: flex;
+  flex-direction: row;
+  max-width: 30vh
+}
+
+
+
+.input-map-container {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 10px;  
+  flex-grow: 1;
+  margin-right: 20px;
+}
+
+.input-map-container .localização{
+  display: flex;
+  flex-direction: row; /* Altera a direção do fluxo para coluna */
+  align-items: center;
+}
+
+
+.input-map-container img {  
+  position: relative;
   
 }
 
-.input-column {
-  flex-grow: 1;
-  margin-right: 20px;
+.map-cadastro {  
+  flex: 1; /* Ocupa todo o espaço restante */
+  position: relative;
+  aspect-ratio: 1/1; /* Define a proporção do aspecto para 1:1 (quadrado) */
+  border: 2px solid black; /* Adiciona uma borda de 2px sólida na cor preta */
+}
+
+.map-cadastro img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.map-cadastro::before {
+  content: '';
+  display: block;
+  padding-top: 100%; /* Define a altura relativa à largura para manter o aspecto quadrado */
+}
+
+.link-sem-decoracao {
+  color: inherit; /* Mantém a cor padrão do texto */
+  text-decoration: none; /* Remove o sublinhado */
+}
+
+/* CSS para base.html */
+
+.h1-fixed {
+  font-size: 24px; /* Tamanho de fonte personalizado para h1 */
+}
+
+/* CSS para cadastro.html */
+
+.medium-input {
+  font-size: 16px; /* Tamanho de fonte médio para inputs */
+}
+
+.short-input {
+  font-size: 14px; /* Tamanho de fonte curto para inputs */
+}
+
+/* CSS para index.html */
+
+h1 {
+  font-size: 24px; /* Tamanho de fonte para h1 */
+}
+
+h4 {
+  font-size: 18px; /* Tamanho de fonte para h4 */
+}
+
+/* CSS adicional */
+
+.label {
+  font-size: 14px; /* Tamanho de fonte para labels */
+  display: inline;
+  
 }

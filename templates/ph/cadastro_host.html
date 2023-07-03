@@ -37,10 +37,17 @@
           <label for="longitude">Longitude:</label>
           <input type="text" id="longitude" name="longitude" class="short-input">
         </div>
+        <div class="input-map-container">
+          <label for="map-cadastro" class="localização">Localização:</label>
+            <div class="map-cadastro">
+              <img src="{% static 'img\sem_local.jpg' %}" alt="Imagem">
+            </div>
+        </div>
       </div>
     </div>
     
     <button id="btn-incluir">Incluir</button>
+    <button id="btn-carregar-coordenada">Carregar Coordenada</button>
   </form>
 
   <!-- Seção de mensagens de sucesso -->
@@ -53,4 +60,11 @@
       </ul>
     </div>
   {% endif %}
+    <!-- Mensagem de sucesso -->
+    <div id="success-message" class="message success-message" style="display: none;"></div>
+
+    <!-- Mensagem de erro -->
+    <div id="error-message" class="message error-message" style="display: none;"></div>
+  
+  <script src="{% static 'js/script.js' %}"></script>
 {% endblock %}

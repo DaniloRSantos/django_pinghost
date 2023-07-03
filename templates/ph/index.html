@@ -1,7 +1,7 @@
 {% extends 'ph/base.html' %}
 {% load static %}
 {% block content %}
-    <h2>Hosts</h2>
+<h1 class="titulo-principal">Hosts</h1>
     
 
     
@@ -20,10 +20,10 @@
             {% for host in hosts %}
             <tr>
                 <td><input type="checkbox" name="host_checkbox" value="{{ host.id }}"></td>
-                <td>{{ host.nome_host }}</td>
-                <td>{{ host.dns_host}}</td>
-                <td>{{ host.ip_host }}</td>
-                <td>
+                <td><h4>{{ host.nome_host }}</h4></td>
+                <td><h4>{{ host.dns_host}}</h4></td>
+                <td><h4>{{ host.ip_host }}</h4></td>
+                <td><h4>
                     {% if host.status_host == 1 %}
                         <img src="{% static 'img/ativo.png' %}" alt="Ativo">
                     {% elif host.status_host == 0 %}
@@ -31,7 +31,7 @@
                     {% else %}
                         <img src="{% static 'img/loading.gif' %}" alt="Carregando">
                     {% endif %}
-                </td>
+                </h3></td>
                 <td>
 
                 </td>
@@ -42,10 +42,17 @@
                     {% csrf_token %}
                     <button type="submit" id="btn-incluir">Incluir</button>
                 </form>
-                <form method="POST" action="{% url 'excluir_hosts' %}">
+                <form id="form-excluir-hosts" method="POST" action="{% url 'excluir_hosts' %}">
                     {% csrf_token %}
-                    <button id="btn-excluir" style="display:none;">Excluir</button>
-                    <button id="btn-editar" style="display:none;">Editar</button>
+                    <input type="hidden" name="host_ids" id="host-ids" value="">
+                    <button id="btn-excluir" style="display:none;" onclick="excluirHosts(); return false;">Excluir</button>
+                    
+                </form>
+                <form id="form-editar-hosts" method="POST" action="#">
+                    {% csrf_token %}
+                    <input type="hidden" name="host_ids" id="host-ids" value="">
+                    <button id="btn-editar" style="display:none;" onclick="editarHost(); return false;">Editar</button>
+                    
                 </form>
             </div>
         </tbody>

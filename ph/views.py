@@ -1,10 +1,13 @@
-from django.shortcuts import render
-from ph.models import EnderecoBusca, Hosts
+import os
 import socket
-from django.shortcuts import redirect, render
+import logging
+from pathlib import Path
+import requests
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse
 from django.utils import timezone
 from django.contrib import messages
-import logging
+from ph.models import EnderecoBusca, Hosts
 
 
 logger = logging.getLogger(__name__)
@@ -17,6 +20,41 @@ def check_availability(ip_address):
         return True
     except Exception:
         return False
+
+def carregar_coordenadas(request):
+    if request.method == 'POST':
+                # Obter os dados enviados pelo formulário para o endereço
+        cep = request.POST['cep']
+        logradouro = request.POST['logradouro']
+        numero = request.POST['numero']
+        complemento = request.POST['complemento']
+        bairro = request.POST['bairro']
+        cidade = request.POST['cidade']
+        estado = request.POST['estado']
+
+        endereco = f"{logradouro}, {numero}, {bairro}, {cidade}, {estado}, {cep}, {complemento}"
+        endereco = endereco.replace(' ', '%20')
+
+        api_key = str(os.getenv('API_KEY'))
+    
+        #Monta a URL para receber a conexão com a API Google
+        url = f'https://maps.googleapis.com/maps/api/geocode/json?address={endereco}&key={api_key}'
+        
+        print(f'url:{url}')
+        
+        response = requests.get(url)
+        if response.status_code ==200:
+            data = response.json()
+            if data['status']== 'OK' and len(data['results']) > 0:
+                location = data['results'][0]['geometry']['location']
+                latitude = location['lat']
+                longitude = location['lng']
+                print(f'As coordenadas do endereço são: Latitude={latitude}, Longitude={longitude}')
+                
+            else:
+                print('Não foi possível obter as coordenadas do endereço.')
+        else:
+            print('A requisição falhou.')
 
 def index(request):
     # Obter todos os objetos de Hosts
@@ -48,7 +86,7 @@ def index(request):
         'imagem_inicial': 'loading.gif',
     }
 
-    return render(request, 'ph\index.html', context)
+    return render(request, 'ph/index.html', context)
 
 def cadastrar_host(request):
     if request.method == 'POST':
@@ -67,9 +105,6 @@ def cadastrar_host(request):
             time_host=timezone.now(),
         )
         
-        novo_host.save()
-        id_novo_host = novo_host.id
-
         # Obter os dados enviados pelo formulário para o endereço
         cep = request.POST['cep']
         logradouro = request.POST['logradouro']
@@ -79,7 +114,7 @@ def cadastrar_host(request):
         cidade = request.POST['cidade']
         estado = request.POST['estado']
 
-        host = Hosts.objects.get(id=id_novo_host)
+  
 
         # Criar um novo objeto EnderecoBusca com os dados fornecidos
         novo_endereco = EnderecoBusca.objects.create(
@@ -90,12 +125,13 @@ def cadastrar_host(request):
             bairro=bairro,
             cidade=cidade,
             estado=estado,
-            host_id=id_novo_host
+            host_id=novo_host
         )
 
-        # Associar o endereço criado ao host
-        novo_host.endereco = novo_endereco
 
+        # Associar o endereço criado ao host
+        novo_host.enderecos.add(novo_endereco)
+        
         #Exibir mensagem de sucesso
         messages.success(request, 'Host cadastrado com sucesso!')
 
@@ -104,36 +140,64 @@ def cadastrar_host(request):
     context = {}
     return render(request, 'ph\cadastro_host.html', context)
     
-
 def excluir_hosts(request):
-    logger.info("Função Excluir")
-    if request.method == 'POST':        
-        # Obter os IDs dos hosts selecionados para exclusão
-        host_ids = request.POST.getlist('host_checkbox')  # Lista de IDs dos hosts selecionados
-        print("IDs dos hosts selecionados:", host_ids)
+    if request.method == 'POST':
+        host_ids = request.POST.get('host_ids')
+        
+        host_ids_list = [int(id) for id in host_ids.split(",")]
 
-        for host_id in host_ids:
-            logger.info("Dentro do For")
-            host = Hosts.objects.get(id=host_id)
+        logger.info(f'IDs dos hosts selecionados para exclusão: {host_ids_list}')
+        
+        try:
+            # Excluindo os hosts com base nos IDs fornecidos
+            hosts = Hosts.objects.filter(id__in=host_ids_list)
+            hosts.delete()
 
-        hosts_selecionados = Hosts.objects.filter(id__in=host_ids)
-        for host in hosts_selecionados:
-            logger.info(f"Host selecionados: {host.nome_host}, IP: {host.ip_host}, DNS: {host.dns_host}")
-
+            #messages.success(request, 'Hosts excluídos com sucesso.')
+        except Exception as e:
+            logger.error(f'Erro ao excluir hosts: {e}')
+            messages.error(request, 'Ocorreu um erro ao excluir os hosts.')
             
-        # Verificar se foram selecionados hosts para exclusão
-        if host_ids:
-            # Excluir os hosts correspondentes aos IDs selecionados
-            hosts_excluidos = Hosts.objects.filter(id__in=host_ids).delete()
+    return redirect('index')
 
-            # Obter o contador de hosts excluídos do dicionário
-            contador_hosts_excluidos = hosts_excluidos[0]
-            # Exibir mensagem de sucesso com o número de hosts excluídos
-            messages.success(request, f'{contador_hosts_excluidos} hosts excluídos com sucesso!')
 
-        # Redirecionar de volta para a página de hosts
-        return redirect('index')
+def editar_host(request, host_id):
+
+    host = get_object_or_404(Host, pk=host_id)
+
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            return redirect('index')
     else:
-        messages.error(request, 'Falha ao excluir, Por favor tente novamente.')
-        # Redirecionar de volta para a página de hosts
-        return redirect('index')
+        form = HostForm(instance=host)
+
+    return render(request, 'ph/editar_host.html', {'form': form, 'host': host})
+
+
+#def obter_coordenadas(request):
+#    endereco = request.GET.get('endereco')  # Obtém o endereço da query string
+#    api_key = os.getenv('API_KEY')
+#
+#    url = 'https://maps.googleapis.com/maps/api/geocode/json'
+#    params = {'address': endereco, 'key': api_key}
+#    
+#    response = requests.get(url, params=params)
+#    data = response.json()
+#
+#    if data['status'] == 'OK':
+#        result = data['results'][0]
+#        location = result['geometry']['location']
+#        latitude = location['lat']
+#        longitude = location['lng']
+#        response_data = {
+#            'latitude': latitude,
+#            'longitude': longitude
+#        }
+#        return JsonResponse(response_data)
+#    else:
+#        response_data = {
+#            'error': 'Não foi possível obter as coordenadas.'
+#        }
+#        return JsonResponse(response_data, status=400)
+#
