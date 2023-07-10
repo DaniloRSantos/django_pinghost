@@ -1,8 +1,11 @@
-{% extends 'ph/base.html' %}
+{% extends 'ph/base2.html' %}
 {% load static %}
 
 {% block content %}
-  <h1 class="h1-fixed">Cadastro de Hosts</h1>
+
+<h1 class="h1-fixed">Cadastro de Hosts</h1>
+<div class="form-wrapper">
+  
   <form method="POST" action="{% url 'cadastrar_host' %}">
     {% csrf_token %}
     <div class="form-row">
@@ -45,10 +48,16 @@
         </div>
       </div>
     </div>
-    
-    <button id="btn-incluir">Incluir</button>
-    <button id="btn-carregar-coordenada">Carregar Coordenada</button>
+
   </form>
+
+</div>
+<div class="buttons">
+    {% csrf_token %}
+    <button id="btn-incluir">Incluir</button>
+    <button id="btn-carregar-coordenada">Carregar Coordenada</button>  
+</div>
+
 
   <!-- Seção de mensagens de sucesso -->
   {% if messages %}
@@ -67,4 +76,6 @@
     <div id="error-message" class="message error-message" style="display: none;"></div>
   
   <script src="{% static 'js/script.js' %}"></script>
+
+
 {% endblock %}

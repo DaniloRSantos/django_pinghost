@@ -1,29 +1,29 @@
-{% extends 'ph/base.html' %}
+{% extends 'ph/base2.html' %}
 {% load static %}
 {% block content %}
-<h1 class="titulo-principal">Hosts</h1>
-    
 
-    
-    <table>
-        <thead>
-            <tr>
-                <th></th>
-                <th>Nome do Host</th>
-                <th>DNS</th>
-                <th>Endereço IP</th>          
-                <th>Status</th>
-                <th></th>
-            </tr>
-        </thead>
+<h2 class="index-titulo-principal">Hosts Cadastrados</h2>
+
+   
+<div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Nome do Host</th>
+                    <th>DNS</th>
+                    <th>Endereço IP</th>          
+                    <th>Status</th>
+                </tr>
+            </thead>
         <tbody>
             {% for host in hosts %}
             <tr>
                 <td><input type="checkbox" name="host_checkbox" value="{{ host.id }}"></td>
-                <td><h4>{{ host.nome_host }}</h4></td>
-                <td><h4>{{ host.dns_host}}</h4></td>
-                <td><h4>{{ host.ip_host }}</h4></td>
-                <td><h4>
+                <td><h5 class="h5-index">{{ host.nome_host }}</h5></td>
+                <td><h5 class="h5-index">{{ host.dns_host}}</h5></td>
+                <td><h5 class="h5-index">{{ host.ip_host }}</h5></td>
+                <td><h5 class="h5-index">
                     {% if host.status_host == 1 %}
                         <img src="{% static 'img/ativo.png' %}" alt="Ativo">
                     {% elif host.status_host == 0 %}
@@ -31,32 +31,33 @@
                     {% else %}
                         <img src="{% static 'img/loading.gif' %}" alt="Carregando">
                     {% endif %}
-                </h3></td>
-                <td>
-
-                </td>
+                </h5></td>
             </tr>
             {% endfor %}
-            <div class="buttons">
-                <form method="GET" action="{% url 'cadastrar_host' %}">
-                    {% csrf_token %}
-                    <button type="submit" id="btn-incluir">Incluir</button>
-                </form>
-                <form id="form-excluir-hosts" method="POST" action="{% url 'excluir_hosts' %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="host_ids" id="host-ids" value="">
-                    <button id="btn-excluir" style="display:none;" onclick="excluirHosts(); return false;">Excluir</button>
-                    
-                </form>
-                <form id="form-editar-hosts" method="POST" action="#">
-                    {% csrf_token %}
-                    <input type="hidden" name="host_ids" id="host-ids" value="">
-                    <button id="btn-editar" style="display:none;" onclick="editarHost(); return false;">Editar</button>
-                    
-                </form>
-            </div>
+
         </tbody>
-    </table>    
+
+    </table>   
+</div>
+    <div class="buttons">
+        <form method="GET" action="{% url 'cadastrar_host' %}">
+            {% csrf_token %}
+            <button type="submit" id="btn-incluir">Incluir</button>
+        </form>
+        <form id="form-excluir-hosts" method="POST" action="{% url 'excluir_hosts' %}">
+            {% csrf_token %}
+            <input type="hidden" name="host_ids" id="host-ids" value="">
+            <button id="btn-excluir" style="display:none;" onclick="excluirHosts(); return false;">Excluir</button>
+            
+        </form>
+        <form id="form-editar-hosts" method="POST" action="#">
+            {% csrf_token %}
+            <input type="hidden" name="host_ids" id="host-ids" value="">
+            <button id="btn-editar" style="display:none;" onclick="editarHost(); return false;">Editar</button>
+            
+        </form>
+    </div> 
+
 
     <script src="{% static 'js/script.js' %}"></script>
 {% endblock %}

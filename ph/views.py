@@ -3,6 +3,7 @@ import socket
 import logging
 from pathlib import Path
 import requests
+import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.utils import timezone
@@ -20,6 +21,7 @@ def check_availability(ip_address):
         return True
     except Exception:
         return False
+    
 
 def carregar_coordenadas(request):
     if request.method == 'POST':
@@ -56,6 +58,18 @@ def carregar_coordenadas(request):
         else:
             print('A requisição falhou.')
 
+
+def carrega_dados(request):
+    # Obter todos os objetos de Hosts
+    hosts = Hosts.objects.all()
+
+    context = {
+            'hosts': hosts,
+            'imagem_inicial': 'loading.gif',
+        }
+
+    return render(request, 'ph/index.html', context)
+
 def index(request):
     # Obter todos os objetos de Hosts
     hosts = Hosts.objects.all()
@@ -89,6 +103,8 @@ def index(request):
     return render(request, 'ph/index.html', context)
 
 def cadastrar_host(request):
+    logger.info(f'Received POST request: {request.POST}')
+
     if request.method == 'POST':
         # Obter os dados enviados pelo formulário para o host
         ip_host = request.POST['ip_host']
@@ -159,6 +175,9 @@ def excluir_hosts(request):
             messages.error(request, 'Ocorreu um erro ao excluir os hosts.')
             
     return redirect('index')
+
+
+
 
 
 def editar_host(request, host_id):

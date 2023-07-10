@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
 /* Estilos CSS para a página */
 html {
   height: 100%;
@@ -5,7 +7,8 @@ html {
 }
 
 body {
-  margin: 0px;
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
   display: flex;
   flex-direction: column;
   min-height: 97vh; 
@@ -13,26 +16,16 @@ body {
 
 main {
   flex-grow: 1;
-  padding: 30px;
-   
+  padding: 30px;   
 }
 
-/* Restante do seu CSS... */
 
-footer {
-  background-color: #333;
-  color: white;
-  text-align: center;  
-  height: 30px;
-  max-width: 98%
-}
 
 .buttons {
-  position: relative; /* Adicione esta propriedade */
-  background-color: #f0f0f0; /* Adicione esta propriedade */
+  position: relative;
+  background-color: #f0f0f0;
   padding: 20px;
 }
-
 
 header {
   top: 0;
@@ -70,16 +63,35 @@ li a:hover:not(.active) {
   color: #333;
 }
 
-
+.table-wrapper {
+  overflow-x: auto;
+}
 
 table {
   border-collapse: collapse;
   width: 100%;  
+  position: relative;
 }
 
-th, td {
+thead {
+  background-color: #fff;
+}
+
+thead > tr > th {
+  position: sticky;
+  top: 0;
+}
+
+tbody {
+  max-height: 300px; /* Defina a altura máxima desejada */
+  overflow-y: auto;
+}
+
+th,
+td {
+  padding: 10px;
   text-align: left;
-  padding: 8px;
+  
 }
 
 th {
@@ -89,9 +101,18 @@ th {
 
 tr:nth-child(even) {
   background-color: #f2f2f2;
+  height: 12px;
 }
 
-/* Restante do seu CSS... */
+th:nth-child(1),
+td:nth-child(1) {
+  width: 10%;
+}
+
+th:nth-child(2),
+td:nth-child(2) {
+  width: 20%;
+}
 
 footer {
   background-color: #333;
@@ -99,10 +120,9 @@ footer {
   padding: 10px;
   text-align: center;
   margin-top: auto;
-  width: 100%;
+  width: 9%;
   bottom: 0;
 }
-
 
 img {
   width: 16px;
@@ -111,9 +131,7 @@ img {
 
 input[type="checkbox"] {
   transform: scale(1.5);
-  
 }
-
 
 .buttons {
   display: flex;
@@ -124,7 +142,6 @@ input[type="checkbox"] {
   display: flex;
   flex-direction: row;
   flex-grow: 1;
-
 }
 
 button {
@@ -168,6 +185,7 @@ button:hover {
 #btn-editar:hover {
   background-color: #3e8e41;
 }
+
 .label-column {
   display: flex;
   flex-direction: row;
@@ -196,6 +214,11 @@ input[type="text"] {
   width: 300px;
 }
 
+tbody {
+  max-height: 100%; /* Defina a altura máxima desejada */
+  overflow-y: auto; /* Adiciona uma barra de rolagem vertical quando necessário */
+}
+
 .short-input {
   width: 150px;
 }
@@ -205,16 +228,13 @@ input[type="text"] {
   overflow-y: auto; /* Adiciona uma barra de rolagem vertical quando necessário */
   padding: 20px;
   align-items:
-
 }
 
 .input-container {
   display: flex;
   flex-direction: row;
-  max-width: 30vh
+  max-width: 30vh;
 }
-
-
 
 .input-map-container {
   display: flex;
@@ -224,16 +244,14 @@ input[type="text"] {
   margin-right: 20px;
 }
 
-.input-map-container .localização{
+.input-map-container .localização {
   display: flex;
   flex-direction: row; /* Altera a direção do fluxo para coluna */
   align-items: center;
 }
 
-
 .input-map-container img {  
   position: relative;
-  
 }
 
 .map-cadastro {  
@@ -251,6 +269,7 @@ input[type="text"] {
   height: 100%;
   object-fit: cover;
 }
+
 .map-cadastro::before {
   content: '';
   display: block;
@@ -285,7 +304,7 @@ h1 {
 }
 
 h4 {
-  font-size: 18px; /* Tamanho de fonte para h4 */
+  font-size: 16px; /* Tamanho de fonte para h4 */
 }
 
 /* CSS adicional */
@@ -293,5 +312,4 @@ h4 {
 .label {
   font-size: 14px; /* Tamanho de fonte para labels */
   display: inline;
-  
 }
