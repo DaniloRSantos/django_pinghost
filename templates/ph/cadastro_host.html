@@ -42,9 +42,8 @@
         </div>
         <div class="input-map-container">
           <label for="map-cadastro" class="localização">Localização:</label>
-            <div class="map-cadastro">
-              <img src="{% static 'img\sem_local.jpg' %}" alt="Imagem">
-            </div>
+            <div class="map-cadastro" id="map-cadastro">
+             </div>
         </div>
       </div>
     </div>
@@ -53,7 +52,6 @@
 
 </div>
 <div class="buttons">
-    {% csrf_token %}
     <button id="btn-incluir">Incluir</button>
     <button id="btn-carregar-coordenada">Carregar Coordenada</button>  
 </div>
@@ -75,7 +73,87 @@
     <!-- Mensagem de erro -->
     <div id="error-message" class="message error-message" style="display: none;"></div>
   
-  <script src="{% static 'js/script.js' %}"></script>
+
+    <script src="{% static 'js/script.js' %}"></script>
+    <script>
+      // Faça uma solicitação AJAX para obter a chave da API do servidor
+      fetch("{% url 'api_key' %}")
+        .then(response => response.json())
+        .then(data => {
+          const api_key = data.api_key;
+          // Seu código JavaScript que usa a chave da API aqui
+          const script = document.createElement('script');
+          script.src = `https://maps.googleapis.com/maps/api/js?key=${api_key}&callback=initMap`;
+          script.async = true;
+          script.defer = true;
+          document.head.appendChild(script);
+        })
+        .catch(error => {
+          console.error("Erro ao obter a chave da API:", error);
+        });
+    </script>
+    
+    <script>
+      function initMap() {
+        // Define as coordenadas iniciais do mapa
+        const initialCoords = { lat: -23.5505, lng: -46.6333 };
+    
+        // Crie um novo mapa e vincule-o à div com o ID "map-cadastro"
+        const map = new google.maps.Map(document.getElementById("map-cadastro"), {
+          center: initialCoords,
+          zoom: 12,
+        });
+    
+        // Adicione um marcador no mapa
+        const marker = new google.maps.Marker({
+          position: initialCoords,
+          map: map,
+          draggable: true, // Permita que o marcador seja arrastado pelo usuário
+        });
+    
+        // Evento de arrastar do marcador
+        marker.addListener("dragend", () => {
+          // Obtenha as novas coordenadas do marcador
+          const newCoords = marker.getPosition();
+          const latitude = newCoords.lat();
+          const longitude = newCoords.lng();
+    
+          // Preencha os campos de latitude e longitude com as novas coordenadas
+          document.getElementById("latitude").value = latitude;
+          document.getElementById("longitude").value = longitude;
+        });
+      }
+    
+      document.addEventListener('DOMContentLoaded', () => {
+        // Defina a função para atualizar o mapa com as novas coordenadas
+        window.updateMap = (latitude, longitude) => {
+          // Obtém o marcador pelo identificador
+          const marker = window.map.markers[0];
+    
+          // Define as novas coordenadas para o marcador
+          const newCoords = new google.maps.LatLng(latitude, longitude);
+          marker.setPosition(newCoords);
+    
+          // Centraliza o mapa nas novas coordenadas
+          window.map.setCenter(newCoords);
+        };
+        
+          // Adicione um evento de clique ao botão "Carregar Coordenadas"
+          const btnCarregarCoordenadas = document.getElementById('btn-carregar-coordenadas');
+          btnCarregarCoordenadas.addEventListener('click', () => {
+          // Obtém os valores dos campos de latitude e longitude
+          const latitude = parseFloat(document.getElementById('latitude').value);
+          const longitude = parseFloat(document.getElementById('longitude').value);
+        
+          // Chama a função para atualizar o mapa com as novas coordenadas
+          updateMap(latitude, longitude);
+
+        });
+
+        // Inicialize o mapa
+        initMap();
+      });
+    </script>
 
 
 {% endblock %}

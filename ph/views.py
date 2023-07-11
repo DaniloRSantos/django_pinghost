@@ -1,14 +1,14 @@
 import os
 import socket
 import logging
-from pathlib import Path
 import requests
-import json
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse
 from django.utils import timezone
 from django.contrib import messages
+from urllib.parse import urlencode
 from ph.models import EnderecoBusca, Hosts
+from django.http import JsonResponse
+from dotenv import load_dotenv
 
 
 logger = logging.getLogger(__name__)
@@ -23,50 +23,73 @@ def check_availability(ip_address):
         return False
     
 
+
+import requests
+from django.http import JsonResponse
+from django.contrib import messages
+load_dotenv()
+api_key = os.getenv('API_KEY')
+
+
 def carregar_coordenadas(request):
     if request.method == 'POST':
-                # Obter os dados enviados pelo formulário para o endereço
-        cep = request.POST['cep']
-        logradouro = request.POST['logradouro']
-        numero = request.POST['numero']
-        complemento = request.POST['complemento']
-        bairro = request.POST['bairro']
-        cidade = request.POST['cidade']
-        estado = request.POST['estado']
+        cep = request.POST.get('cep')
+        logradouro = request.POST.get('logradouro')
+        numero = request.POST.get('numero')
+        complemento = request.POST.get('complemento')
+        bairro = request.POST.get('bairro')
+        cidade = request.POST.get('cidade')
+        estado = request.POST.get('estado')
 
-        endereco = f"{logradouro}, {numero}, {bairro}, {cidade}, {estado}, {cep}, {complemento}"
-        endereco = endereco.replace(' ', '%20')
+        endereco = f'{logradouro}, {numero}, {bairro}, {cidade}, {estado}, {cep}, {complemento}'
+        endereco_codificado = endereco.replace(' ', '%20')
+        api_key = os.getenv('API_KEY')
 
-        api_key = str(os.getenv('API_KEY'))
-    
-        #Monta a URL para receber a conexão com a API Google
-        url = f'https://maps.googleapis.com/maps/api/geocode/json?address={endereco}&key={api_key}'
-        
-        print(f'url:{url}')
-        
-        response = requests.get(url)
-        if response.status_code ==200:
-            data = response.json()
-            if data['status']== 'OK' and len(data['results']) > 0:
-                location = data['results'][0]['geometry']['location']
-                latitude = location['lat']
-                longitude = location['lng']
-                print(f'As coordenadas do endereço são: Latitude={latitude}, Longitude={longitude}')
-                
+        url = f'https://maps.googleapis.com/maps/api/geocode/json?address={endereco_codificado}&key={api_key}'
+
+        print(f'Endereço enviado: {endereco}')
+
+        try:
+            response = requests.get(url)
+            if response.status_code == 200:
+                data = response.json()
+                if data['status'] == 'OK' and len(data['results']) > 0:
+                    location = data['results'][0]['geometry']['location']
+                    latitude = location['lat']
+                    longitude = location['lng']
+                    print(f'As coordenadas do endereço são: Latitude={latitude}, Longitude={longitude}')
+                    return JsonResponse({'latitude': latitude, 'longitude': longitude})
+                else:
+                    print('Não foi possível obter as coordenadas do endereço.')
+                    return JsonResponse({'error': 'Não foi possível obter as coordenadas do endereço.'}, status=400)
             else:
-                print('Não foi possível obter as coordenadas do endereço.')
-        else:
-            print('A requisição falhou.')
+                print('A requisição falhou.')
+                return JsonResponse({'error': 'A requisição falhou.'}, status=400)
+        except requests.exceptions.RequestException as e:
+            logger.error(f'Erro ao fazer a requisição: {e}')
+            messages.error(request, 'Ocorreu um erro ao obter as coordenadas.')
+            return JsonResponse({'error': 'Ocorreu um erro ao obter as coordenadas.'}, status=400)
+        except KeyError as e:
+            logger.error(f'Dados de resposta inválidos: {e}')
+            messages.error(request, 'Ocorreu um erro ao processar os dados de resposta.')
+            return JsonResponse({'error': 'Ocorreu um erro ao processar os dados de resposta.'}, status=400)
+    else:
+        return JsonResponse({'error': 'Método inválido'}, status=400)
 
+
+def get_api_key(request):
+    api_key = os.getenv('API_KEY')  # Obtenha a chave da API do ambiente
+    return JsonResponse({'api_key': api_key})
 
 def carrega_dados(request):
     # Obter todos os objetos de Hosts
     hosts = Hosts.objects.all()
 
     context = {
-            'hosts': hosts,
-            'imagem_inicial': 'loading.gif',
-        }
+        'hosts': hosts,
+        'imagem_inicial': 'loading.gif',
+        'API_KEY': api_key,  # Adicione a API key ao dicionário de contexto
+    }
 
     return render(request, 'ph/index.html', context)
 
@@ -98,11 +121,13 @@ def index(request):
     context = {
         'hosts': hosts_atualizados,
         'imagem_inicial': 'loading.gif',
+        'api_key': api_key,  # Adicione a API key ao dicionário de contexto
     }
 
     return render(request, 'ph/index.html', context)
 
 def cadastrar_host(request):
+    
     logger.info(f'Received POST request: {request.POST}')
 
     if request.method == 'POST':
@@ -129,6 +154,8 @@ def cadastrar_host(request):
         bairro = request.POST['bairro']
         cidade = request.POST['cidade']
         estado = request.POST['estado']
+        latitude = request.POST['latitude']
+        longitude = request.POST['longitude']
 
   
 
@@ -141,7 +168,10 @@ def cadastrar_host(request):
             bairro=bairro,
             cidade=cidade,
             estado=estado,
+            latitude=latitude,
+            longitude=longitude,
             host_id=novo_host
+
         )
 
 
@@ -153,8 +183,10 @@ def cadastrar_host(request):
 
         # Redirecionar para a página de sucesso ou fazer o processamento necessário
 
-    context = {}
-    return render(request, 'ph\cadastro_host.html', context)
+    context = {
+        'api_key': api_key
+    }
+    return render(request, 'ph/cadastro_host.html', context)
     
 def excluir_hosts(request):
     if request.method == 'POST':
@@ -180,18 +212,18 @@ def excluir_hosts(request):
 
 
 
-def editar_host(request, host_id):
-
-    host = get_object_or_404(Host, pk=host_id)
-
-    if request.method == 'POST':
-        if form.is_valid():
-            form.save()
-            return redirect('index')
-    else:
-        form = HostForm(instance=host)
-
-    return render(request, 'ph/editar_host.html', {'form': form, 'host': host})
+#def editar_host(request, host_id):
+#
+#    host = get_object_or_404(Host, pk=host_id)
+#
+#    if request.method == 'POST':
+#        if form.is_valid():
+#            form.save()
+#            return redirect('index')
+#    else:
+#        form = HostForm(instance=host)
+#
+#    return render(request, 'ph/editar_host.html', {'form': form, 'host': host})
 
 
 #def obter_coordenadas(request):

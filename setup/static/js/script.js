@@ -4,6 +4,11 @@ const checkboxes = document.querySelectorAll('input[type=checkbox]');
 const btnEditar = document.querySelector('#btn-editar');
 const btnExcluir = document.querySelector('#btn-excluir');
 const btnIncluir = document.querySelector('#btn-incluir');
+const btnLocalizacao = document.querySelector('#btn-carregar-coordenada');
+let map;
+const latitudeInput = document.getElementById('latitude');
+const longitudeInput = document.getElementById('longitude');
+
 
 checkboxes.forEach(checkbox => {
   checkbox.addEventListener('change', () => {
@@ -35,19 +40,22 @@ btnIncluir.addEventListener('click', () => {
   const bairro = document.getElementById('bairro').value;
   const cidade = document.getElementById('cidade').value;
   const estado = document.getElementById('estado').value;
+  const latitude = document.getElementById('latitude').value;
+  const longitude = document.getElementById('longitude').value;
 
     // Log de depuração
-    console.log('IP do Host:', ipHost);
-    console.log('DNS do Host:', dnsHost);
-    console.log('Nome do Host:', nomeHost);
-    console.log('Categoria do Host:', categoriaHost);
-    console.log('CEP:', cep);
-    console.log('Logradouro:', logradouro);
-    console.log('Número:', numero);
-    console.log('Complemento:', complemento);
-    console.log('Bairro:', bairro);
-    console.log('Cidade:', cidade);
-    console.log('Estado:', estado);
+    //console.log('IP do Host:', ipHost);
+    //console.log('DNS do Host:', dnsHost);
+    //console.log('Nome do Host:', nomeHost);
+    //console.log('Categoria do Host:', categoriaHost);
+    //console.log('CEP:', cep);
+    //console.log('Logradouro:', logradouro);
+    //console.log('Número:', numero);
+    //console.log('Complemento:', complemento);
+    //console.log('Bairro:', bairro);
+    //console.log('Cidade:', cidade);
+    //console.log('Estado:', estado);
+
 
 
   // Criar um objeto com os dados do formulário
@@ -62,7 +70,9 @@ btnIncluir.addEventListener('click', () => {
     complemento: complemento,
     bairro: bairro,
     cidade: cidade,
-    estado: estado
+    estado: estado,
+    latitude: latitude,
+    longitude: longitude,
   };
 
   // Enviar uma requisição POST para a URL de cadastro
@@ -88,8 +98,6 @@ btnIncluir.addEventListener('click', () => {
       console.error(error);
     });
 });
-
-
 
 // Função auxiliar para obter o valor do token CSRF de um cookie
 function getCookie(name) {
@@ -120,13 +128,16 @@ function excluirHosts() {
   }
 }
 
+//------------------------------------------------------------------------------
 
-document.getElementById('btn-carregar-coordenada').addEventListener('click', function(event) {
-  event.preventDefault(); // Impede o comportamento padrão de envio do formulário
-  carregar_coordenadas();
-});
+// Função para inicializar o mapa
 
-function carregar_coordenadas() {
+// Função para inicializar o mapa
+
+
+
+btnLocalizacao.addEventListener('click', () => {
+  if (btnLocalizacao) {
   // Obter os valores dos campos de endereço
   const cep = document.getElementById('cep').value;
   const logradouro = document.getElementById('logradouro').value;
@@ -136,46 +147,49 @@ function carregar_coordenadas() {
   const cidade = document.getElementById('cidade').value;
   const estado = document.getElementById('estado').value;
 
-  // Montar a string de endereço
-  const endereco = `${logradouro}, ${numero}, ${bairro}, ${cidade}, ${estado}, ${cep}, ${complemento}`;
-  const enderecoCodificado = encodeURIComponent(endereco);
-
-  // Construir a URL da API do Google Maps
-  const apiKey = '<sua_chave_de_API>';
-  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${enderecoCodificado}&key=${apiKey}`;
-
-  // Fazer a requisição para obter as coordenadas do endereço
-  fetch(url)
+    // Criar um objeto com os dados do formulário
+    const formData = {
+      cep: cep,
+      logradouro: logradouro,
+      numero: numero,
+      complemento: complemento,
+      bairro: bairro,
+      cidade: cidade,
+      estado: estado
+    };
+    // Enviar uma requisição POST para a URL de cadastro
+    fetch('/carregar_coordenadas/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: new URLSearchParams(formData).toString()
+    })
     .then(response => response.json())
     .then(data => {
-      if (data.status === 'OK' && data.results.length > 0) {
-        const location = data.results[0].geometry.location;
-        const latitudeInput = document.getElementById('latitude');
-        const longitudeInput = document.getElementById('longitude');
-
-        latitudeInput.value = location.lat;
-        longitudeInput.value = location.lng;
-
-        // Exibir mensagem de sucesso
-        const successMessage = document.getElementById('success-message');
-        successMessage.textContent = 'Coordenadas carregadas com sucesso.';
-        successMessage.style.display = 'block';
+      if (data.latitude && data.longitude) {
+        // Preencher os campos de latitude e longitude com os valores recebidos
+        preencherCoordenadas(data.latitude, data.longitude);
       } else {
-        // Exibir mensagem de erro
-        const errorMessage = document.getElementById('error-message');
-        errorMessage.textContent = 'Não foi possível obter as coordenadas para o endereço informado.';
-        errorMessage.style.display = 'block';
+        console.error('Erro ao obter as coordenadas do endereço.');
       }
     })
     .catch(error => {
-      // Exibir mensagem de erro
-      const errorMessage = document.getElementById('error-message');
-      errorMessage.textContent = 'Erro ao acessar a API do Google Maps.';
-      errorMessage.style.display = 'block';
+      console.error('Erro na requisição:', error);
     });
-}
+  }
+  });
+  
+  function preencherCoordenadas(latitude, longitude) {
+    latitudeInput.value = latitude;
+    longitudeInput.value = longitude;
+  }
+
+  //Carregando o mapa]
 
 
+  //------------------------------------------------------------------------------
 /*
 function editarHost() {
   var hostCheckbox = document.querySelector('input[name="host_checkbox"]:checked');
