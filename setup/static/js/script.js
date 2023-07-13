@@ -132,8 +132,6 @@ function excluirHosts() {
 
 // Função para inicializar o mapa
 
-// Função para inicializar o mapa
-
 
 
 btnLocalizacao.addEventListener('click', () => {
@@ -184,6 +182,11 @@ btnLocalizacao.addEventListener('click', () => {
   function preencherCoordenadas(latitude, longitude) {
     latitudeInput.value = latitude;
     longitudeInput.value = longitude;
+    const map = window.map.map;
+    const marker = window.map.marker;
+    const newCoords = new google.maps.LatLng(latitude, longitude);
+    marker.setPosition(newCoords);
+    map.setCenter(newCoords)
   }
 
   //Carregando o mapa]

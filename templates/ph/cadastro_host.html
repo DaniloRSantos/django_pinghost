@@ -6,42 +6,44 @@
 <h1 class="h1-fixed">Cadastro de Hosts</h1>
 <div class="form-wrapper">
   
-  <form method="POST" action="{% url 'cadastrar_host' %}">
+  <form class="form-wrapper" method="POST" action="{% url 'cadastrar_host' %}">
     {% csrf_token %}
     <div class="form-row">
       <div class="input-container">
-        <div class="input-column">
-          <label for="ip_host">IP do Host:</label>
-          <input type="text" id="ip_host" name="ip_host" class="medium-input" required>
-          <label for="dns_host">DNS do Host:</label>
-          <input type="text" id="dns_host" name="dns_host" class="medium-input" required>
-          <label for="nome_host">Nome do Host:</label>
-          <input type="text" id="nome_host" name="nome_host" class="medium-input" required>
-          <label for="categoria_host">Categoria do Host:</label>
-          <input type="text" id="categoria_host" name="categoria_host" class="medium-input" required>
-        </div>
-        <div class="input-column">
-          <label for="cep">CEP:</label>
-          <input type="text" id="cep" name="cep" class="short-input" required>
-          <label for="logradouro">Logradouro:</label>
-          <input type="text" id="logradouro" name="logradouro" class="medium-input" required>
-          <label for="numero">Número:</label>
-          <input type="text" id="numero" name="numero" class="short-input" required>
-          <label for="complemento">Complemento:</label>
-          <input type="text" id="complemento" name="complemento" class="medium-input">
-          <label for="bairro">Bairro:</label>
-          <input type="text" id="bairro" name="bairro" class="medium-input" required>
-          <label for="cidade">Cidade:</label>
-          <input type="text" id="cidade" name="cidade" class="medium-input" required>
-          <label for="estado">Estado:</label>
-          <input type="text" id="estado" name="estado" class="short-input" required>
-          <label for="latitude">Latitude:</label>
-          <input type="text" id="latitude" name="latitude" class="short-input">
-          <label for="longitude">Longitude:</label>
-          <input type="text" id="longitude" name="longitude" class="short-input">
+        <div class="subinput-container">
+          <div class="input-column">
+            <label for="ip_host">IP do Host:</label>
+            <input type="text" id="ip_host" name="ip_host" class="medium-input" required>
+            <label for="dns_host">DNS do Host:</label>
+            <input type="text" id="dns_host" name="dns_host" class="medium-input" required>
+            <label for="nome_host">Nome do Host:</label>
+            <input type="text" id="nome_host" name="nome_host" class="medium-input" required>
+            <label for="categoria_host">Categoria do Host:</label>
+            <input type="text" id="categoria_host" name="categoria_host" class="medium-input" required>
+          </div>
+          <div class="input-column">
+            <label for="cep">CEP:</label>
+            <input type="text" id="cep" name="cep" class="short-input" required>
+            <label for="logradouro">Logradouro:</label>
+            <input type="text" id="logradouro" name="logradouro" class="medium-input" required>
+            <label for="numero">Número:</label>
+            <input type="text" id="numero" name="numero" class="short-input" required>
+            <label for="complemento">Complemento:</label>
+            <input type="text" id="complemento" name="complemento" class="medium-input">
+            <label for="bairro">Bairro:</label>
+            <input type="text" id="bairro" name="bairro" class="medium-input" required>
+            <label for="cidade">Cidade:</label>
+            <input type="text" id="cidade" name="cidade" class="medium-input" required>
+            <label for="estado">Estado:</label>
+            <input type="text" id="estado" name="estado" class="short-input" required>
+            <label for="latitude">Latitude:</label>
+            <input type="text" id="latitude" name="latitude" class="short-input">
+            <label for="longitude">Longitude:</label>
+            <input type="text" id="longitude" name="longitude" class="short-input">
+          </div>
         </div>
         <div class="input-map-container">
-          <label for="map-cadastro" class="localização">Localização:</label>
+          <h3 for="map-cadastro" class="localizacao">Localização:</h3>
             <div class="map-cadastro" id="map-cadastro">
              </div>
         </div>
@@ -52,6 +54,7 @@
 
 </div>
 <div class="buttons">
+    {% csrf_token %}
     <button id="btn-incluir">Incluir</button>
     <button id="btn-carregar-coordenada">Carregar Coordenada</button>  
 </div>
@@ -101,14 +104,15 @@
         // Crie um novo mapa e vincule-o à div com o ID "map-cadastro"
         const map = new google.maps.Map(document.getElementById("map-cadastro"), {
           center: initialCoords,
-          zoom: 12,
+          zoom: 20,
         });
-    
+     
         // Adicione um marcador no mapa
         const marker = new google.maps.Marker({
           position: initialCoords,
           map: map,
           draggable: true, // Permita que o marcador seja arrastado pelo usuário
+          
         });
     
         // Evento de arrastar do marcador
@@ -122,37 +126,15 @@
           document.getElementById("latitude").value = latitude;
           document.getElementById("longitude").value = longitude;
         });
-      }
-    
-      document.addEventListener('DOMContentLoaded', () => {
-        // Defina a função para atualizar o mapa com as novas coordenadas
-        window.updateMap = (latitude, longitude) => {
-          // Obtém o marcador pelo identificador
-          const marker = window.map.markers[0];
-    
-          // Define as novas coordenadas para o marcador
-          const newCoords = new google.maps.LatLng(latitude, longitude);
-          marker.setPosition(newCoords);
-    
-          // Centraliza o mapa nas novas coordenadas
-          window.map.setCenter(newCoords);
+        // Armazene a referência ao objeto 'map' em 'window.map'
+        window.map = {
+        map: map,
+        marker: marker
         };
-        
-          // Adicione um evento de clique ao botão "Carregar Coordenadas"
-          const btnCarregarCoordenadas = document.getElementById('btn-carregar-coordenadas');
-          btnCarregarCoordenadas.addEventListener('click', () => {
-          // Obtém os valores dos campos de latitude e longitude
-          const latitude = parseFloat(document.getElementById('latitude').value);
-          const longitude = parseFloat(document.getElementById('longitude').value);
-        
-          // Chama a função para atualizar o mapa com as novas coordenadas
-          updateMap(latitude, longitude);
 
-        });
+      }
 
-        // Inicialize o mapa
-        initMap();
-      });
+ 
     </script>
 
 

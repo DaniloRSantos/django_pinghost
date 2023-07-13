@@ -2,13 +2,18 @@ import os
 import socket
 import logging
 import requests
-from django.shortcuts import render, redirect, get_object_or_404
+import json
+import requests
+from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.contrib import messages
-from urllib.parse import urlencode
 from ph.models import EnderecoBusca, Hosts
 from django.http import JsonResponse
 from dotenv import load_dotenv
+
+from django.http import JsonResponse
+from django.contrib import messages
+
 
 
 logger = logging.getLogger(__name__)
@@ -24,9 +29,7 @@ def check_availability(ip_address):
     
 
 
-import requests
-from django.http import JsonResponse
-from django.contrib import messages
+
 load_dotenv()
 api_key = os.getenv('API_KEY')
 
@@ -208,6 +211,24 @@ def excluir_hosts(request):
             
     return redirect('index')
 
+
+
+
+def mapa(request):
+    hosts = Hosts.objects.all()
+    host_data = []
+    for host in hosts:
+        endereco = host.enderecos.first()  # Acessa o primeiro objeto EnderecoBusca associado ao host (ou None)
+        if endereco:
+            host_data.append({
+                'latitude': float(endereco.latitude),
+                'longitude': float(endereco.longitude),
+                'nome_host': host.nome_host
+            })
+    context = {
+        'host_data': host_data
+    }
+    return render(request, 'ph/mapa.html', context)
 
 
 
