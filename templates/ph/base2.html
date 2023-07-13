@@ -1,0 +1,30 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>PH</title>
+  <link rel="stylesheet" href="{% static '/css/cssstyle2.css' %}">
+</head>
+<body>
+  <div class="container">
+    <nav class="sidebar">
+      <h3 class="titulo-principal">
+        <a href="{% url 'index' %}" class="link-sem-decoracao">Ping Host</a>
+      </h3>
+      <div class="linhas-paralelas"></div>
+
+      <ul class="op-men-lat">
+        <li><a href="{% url 'index' %}" {% if request.path == '/' %}class="active"{% endif %}>Hosts</a></li>
+        <li><a href="{% url 'mapa' %}" {% if request.path == '/mapa/' %}class="active"{% endif %}>Mapa</a></li>
+      </ul>
+      <p class="rights" >Ping Host<sup>&reg;</sup></p>
+    </nav>
+    <main class="main-content">
+      {% block content %}{% endblock %}
+    </main>
+    
+  
+  </div>  
+</body>
+</html>
