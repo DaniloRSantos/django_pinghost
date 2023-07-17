@@ -1,54 +1,75 @@
-{% extends 'ph/base2.html' %}
+{% extends 'ph/base.html' %}
 {% load static %}
 {% block content %}
 <h1 class="index-titulo-principal">Localidades</h1>
 <div class="div-map" id="div-map"></div>
 
 <script src="{% static 'js/script.js' %}"></script>
-    <script>
-      // Faça uma solicitação AJAX para obter a chave da API do servidor
-      fetch("{% url 'api_key' %}")
-        .then(response => response.json())
-        .then(data => {
-          const api_key = data.api_key;
-          // Seu código JavaScript que usa a chave da API aqui
-          const script = document.createElement('script');
-          script.src = `https://maps.googleapis.com/maps/api/js?key=${api_key}&callback=initMap`;
-          script.async = true;
-          script.defer = true;
-          document.head.appendChild(script);
-        })
-        .catch(error => {
-          console.error("Erro ao obter a chave da API:", error);
-        });
-    </script>
-    
-    <script>
-      function initMap() {
-        // Define as coordenadas iniciais do mapa
-    
-        // Crie um novo mapa e vincule-o à div com o ID "map-cadastro"
-        const map = new google.maps.Map(document.getElementById("div-map"), {
-          center: { lat: -14.235, lng: -51.925 },
-          zoom: 4.1,
-        });
-     
-        
-        {% for host in hosts %}
-            var marker = new google.maps.Marker({
-                position: {lat: {{host.latitude}}, lng:{{host.longitude}}},
-                map: map,
-                title: '{{ host.nome_host}}'
-            });
-        {% endfor %}
-        // Armazene a referência ao objeto 'map' em 'window.map'
-        window.map = {
+
+
+<script>
+  // Faça uma solicitação AJAX para obter a chave da API do servidor
+  fetch("{% url 'api_key' %}")
+    .then(response => response.json())
+    .then(data => {
+      const api_key = data.api_key;
+      // Seu código JavaScript que usa a chave da API aqui
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${api_key}&callback=initMap`;
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
+    })
+    .catch(error => {
+      console.error("Erro ao obter a chave da API:", error);
+    });
+</script>
+
+<script>
+  // Função para criar o mapa
+  function createMap() {
+    // Define as coordenadas iniciais do mapa
+    const initialLatLng = { lat: -14.235, lng: -51.925 };
+
+    // Crie um novo mapa e vincule-o à div com o ID "div-map"
+    const mapObj = new google.maps.Map(document.getElementById("div-map"), {
+      center: initialLatLng,
+      zoom: 4.1,
+    });
+
+    return mapObj;
+  }
+
+  // Função para criar marcadores no mapa
+  function createMarkers(map) {
+    {% for ponto in host_data %}
+      // Criar marcador para cada ponto
+      var location = new google.maps.LatLng({{ ponto.latitude }}, {{ ponto.longitude }});
+      var marker = new google.maps.Marker({
+        position: location,
         map: map,
-        marker: marker
-        };
+        title: "{{ ponto.nome_host }}"
+      });
 
-      }
+      console.log("Latitude:", {{ ponto.latitude }});
+      console.log("Longitude:", {{ ponto.longitude }});
+      console.log("Nome do host:", "{{ ponto.nome_host }}");
+    {% endfor %}
+  }
 
- 
-    </script>
+  // Função para inicializar o mapa
+  function initMap() {
+    // Crie o mapa
+    const mapObj = createMap();
+
+    // Crie os marcadores no mapa
+    createMarkers(mapObj);
+
+    // Armazene a referência ao objeto 'mapObj' em 'window.map'
+    window.map = {
+      map: mapObj
+    };
+  }
+</script>
+
 {% endblock %}

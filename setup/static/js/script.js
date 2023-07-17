@@ -206,3 +206,27 @@ function editarHost() {
   }
 }
 */
+//darkmode
+document.addEventListener("DOMContentLoaded", function() {
+  const darkModeToggle = document.getElementById("darkModeToggle");
+
+  darkModeToggle.addEventListener("change", function() {
+    if (this.checked) {
+      document.body.classList.add("dark-mode");
+      localStorage.setItem("darkMode", "enabled");
+    } else {
+      document.body.classList.remove("dark-mode");
+      localStorage.setItem("darkMode", "disabled");
+    }
+  });
+
+  const darkModeSetting = localStorage.getItem("darkMode");
+
+  if (darkModeSetting === "enabled") {
+    darkModeToggle.checked = true;
+    document.body.classList.add("dark-mode");
+  } else {
+    darkModeToggle.checked = false;
+    document.body.classList.remove("dark-mode");
+  }
+});

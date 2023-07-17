@@ -84,6 +84,8 @@ def get_api_key(request):
     api_key = os.getenv('API_KEY')  # Obtenha a chave da API do ambiente
     return JsonResponse({'api_key': api_key})
 
+
+
 def carrega_dados(request):
     # Obter todos os objetos de Hosts
     hosts = Hosts.objects.all()
@@ -214,21 +216,28 @@ def excluir_hosts(request):
 
 
 
+
 def mapa(request):
     hosts = Hosts.objects.all()
     host_data = []
     for host in hosts:
         endereco = host.enderecos.first()  # Acessa o primeiro objeto EnderecoBusca associado ao host (ou None)
+
         if endereco:
+
             host_data.append({
                 'latitude': float(endereco.latitude),
                 'longitude': float(endereco.longitude),
-                'nome_host': host.nome_host
+                'nome_host': host.nome_host,
             })
+
     context = {
         'host_data': host_data
     }
-    return render(request, 'ph/mapa.html', context)
+
+    logger.info('Retorno de coordenadas: %s', host_data)
+
+    return render(request, 'ph/mapa.html', {'host_data':host_data})
 
 
 

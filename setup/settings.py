@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'ph.apps.PhConfig',
+    'location_field',
 ]
 
 MIDDLEWARE = [
