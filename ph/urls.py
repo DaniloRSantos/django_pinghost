@@ -8,5 +8,5 @@ urlpatterns = [
     path('excluir/', views.excluir_hosts, name='excluir_hosts'),
     path('api-key/', views.get_api_key, name='api_key'),
     path('mapa/', views.mapa, name='mapa'),
-
+    path('atualiza_host/', views.atualiza_host, name='atualiza_host'),
 ]

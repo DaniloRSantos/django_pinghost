@@ -2,7 +2,6 @@ import os
 import socket
 import logging
 import requests
-import json
 import requests
 from django.shortcuts import render, redirect
 from django.utils import timezone
@@ -11,11 +10,9 @@ from ph.models import EnderecoBusca, Hosts
 from django.http import JsonResponse
 from dotenv import load_dotenv
 
-from django.http import JsonResponse
-from django.contrib import messages
 
-
-
+load_dotenv()
+api_key = os.getenv('API_KEY')
 logger = logging.getLogger(__name__)
 
 # Função para verificar a disponibilidade do host
@@ -27,12 +24,6 @@ def check_availability(ip_address):
     except Exception:
         return False
     
-
-
-
-load_dotenv()
-api_key = os.getenv('API_KEY')
-
 
 def carregar_coordenadas(request):
     if request.method == 'POST':
@@ -79,55 +70,83 @@ def carregar_coordenadas(request):
     else:
         return JsonResponse({'error': 'Método inválido'}, status=400)
 
-
 def get_api_key(request):
     api_key = os.getenv('API_KEY')  # Obtenha a chave da API do ambiente
     return JsonResponse({'api_key': api_key})
 
 
+#---------------------------------------------------------------------------------------
 
-def carrega_dados(request):
+def atualiza_host(request):
+        hosts = Hosts.objects.all()
+
+        # Iterar pelos objetos de Hosts e atualizar as colunas desejadas
+        for host in hosts:
+            endereco_ip = host.ip_host  # Obter o endereço IP do objeto Host
+
+            # Verificar a disponibilidade do host usando a função check_availability
+            host_disponivel = check_availability(endereco_ip)
+            if host_disponivel:
+                # Se o ping for bem-sucedido, atualizar o status do host para True
+                host.status_host = True
+
+            else:
+                # Se o ping falhar, atualizar o status do host para False
+                host.status_host = False
+
+            host.time_host = timezone.now()
+            host.save()  # Salvar as alterações no objeto Host
+
+        # Obter todos os objetos de Hosts novamente após as atualizações
+        hosts = Hosts.objects.all().values('id', 'status_host')
+        return JsonResponse({'hosts': list(hosts)})
+
+
+
+def index(request):
     # Obter todos os objetos de Hosts
     hosts = Hosts.objects.all()
 
     context = {
         'hosts': hosts,
         'imagem_inicial': 'loading.gif',
-        'API_KEY': api_key,  # Adicione a API key ao dicionário de contexto
+        'api_key': api_key,  # Adicione a API key ao dicionário de contexto
     }
 
     return render(request, 'ph/index.html', context)
 
-def index(request):
-    # Obter todos os objetos de Hosts
-    hosts = Hosts.objects.all()
 
-    # Iterar pelos objetos de Hosts e atualizar as colunas desejadas
-    for host in hosts:
-        endereco_ip = host.ip_host  # Obter o endereço IP do objeto Host
 
-        # Verificar a disponibilidade do host usando a função check_availability
-        host_disponivel = check_availability(endereco_ip)
-        if host_disponivel:
-            # Se o ping for bem-sucedido, atualizar o status do host para True
-            host.status_host = True
-            
-        else:
-            # Se o ping falhar, atualizar o status do host para False
-            host.status_host = False
-        
-       
-        host.time_host = timezone.now()
-        host.save()  # Salvar as alterações no objeto Host
-
-    # Obter todos os objetos de Hosts novamente após as atualizações
-    hosts_atualizados = Hosts.objects.all()
-
-    context = {
-        'hosts': hosts_atualizados,
-        'imagem_inicial': 'loading.gif',
-        'api_key': api_key,  # Adicione a API key ao dicionário de contexto
-    }
+#def index(request):
+#    # Obter todos os objetos de Hosts
+#    hosts = Hosts.objects.all()
+#
+#    # Iterar pelos objetos de Hosts e atualizar as colunas desejadas
+#    for host in hosts:
+#        endereco_ip = host.ip_host  # Obter o endereço IP do objeto Host
+#
+#        # Verificar a disponibilidade do host usando a função check_availability
+#        host_disponivel = check_availability(endereco_ip)
+#        if host_disponivel:
+#            # Se o ping for bem-sucedido, atualizar o status do host para True
+#            host.status_host = True
+#            
+#        else:
+#            # Se o ping falhar, atualizar o status do host para False
+#            host.status_host = False
+#        
+#       
+#        host.time_host = timezone.now()
+#        host.save()  # Salvar as alterações no objeto Host
+#
+#    # Obter todos os objetos de Hosts novamente após as atualizações
+#    hosts_atualizados = Hosts.objects.all()
+#
+#    context = {
+#        'hosts': hosts_atualizados,
+#        'imagem_inicial': 'loading.gif',
+#        'api_key': api_key,  # Adicione a API key ao dicionário de contexto
+#    }
 
     return render(request, 'ph/index.html', context)
 
@@ -213,10 +232,6 @@ def excluir_hosts(request):
             
     return redirect('index')
 
-
-
-
-
 def mapa(request):
     hosts = Hosts.objects.all()
     host_data = []
@@ -224,11 +239,16 @@ def mapa(request):
         endereco = host.enderecos.first()  # Acessa o primeiro objeto EnderecoBusca associado ao host (ou None)
 
         if endereco:
+            latitude = float(endereco.latitude)
+            longitude = float(endereco.longitude)
+            host.coordenadas = (latitude, longitude)
+            host.save()
 
             host_data.append({
-                'latitude': float(endereco.latitude),
-                'longitude': float(endereco.longitude),
+                'latitude': latitude,
+                'longitude': longitude,
                 'nome_host': host.nome_host,
+                'status_host': host.status_host,
             })
 
     context = {

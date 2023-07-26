@@ -26,50 +26,68 @@
 </script>
 
 <script>
-  // Função para criar o mapa
-  function createMap() {
-    // Define as coordenadas iniciais do mapa
-    const initialLatLng = { lat: -14.235, lng: -51.925 };
-
-    // Crie um novo mapa e vincule-o à div com o ID "div-map"
-    const mapObj = new google.maps.Map(document.getElementById("div-map"), {
-      center: initialLatLng,
-      zoom: 4.1,
-    });
-
-    return mapObj;
-  }
-
-  // Função para criar marcadores no mapa
-  function createMarkers(map) {
-    {% for ponto in host_data %}
-      // Criar marcador para cada ponto
-      var location = new google.maps.LatLng({{ ponto.latitude }}, {{ ponto.longitude }});
-      var marker = new google.maps.Marker({
-        position: location,
-        map: map,
-        title: "{{ ponto.nome_host }}"
-      });
-
-      console.log("Latitude:", {{ ponto.latitude }});
-      console.log("Longitude:", {{ ponto.longitude }});
-      console.log("Nome do host:", "{{ ponto.nome_host }}");
-    {% endfor %}
-  }
-
-  // Função para inicializar o mapa
+  
   function initMap() {
-    // Crie o mapa
-    const mapObj = createMap();
+  // Crie um novo mapa e vincule-o à div com o ID "div-map"
+  const mapObj = new google.maps.Map(document.getElementById("div-map"), {
+    zoom: 4.1,
+  });
 
-    // Crie os marcadores no mapa
-    createMarkers(mapObj);
+  var latitudes = [];
+  var longitudes = [];
 
-    // Armazene a referência ao objeto 'mapObj' em 'window.map'
-    window.map = {
-      map: mapObj
-    };
-  }
+  {% for ponto in host_data %}
+    // Criar marcador para cada ponto
+    var latitude = parseFloat("{{ ponto.latitude }}".replace(',', '.'));
+    var longitude = parseFloat("{{ ponto.longitude }}".replace(',', '.'));
+    var status = {{ ponto.status_host|lower }};
+    console.log("Valor de status = " & status)
+
+    latitudes.push(latitude);
+    longitudes.push(longitude);
+
+    var location = new google.maps.LatLng(latitude, longitude);
+    var markerIcon = '';
+    if (status) {
+      markerIcon = {
+        url: '/static/img/map_greenmarker.png',
+        scaledSize: new google.maps.Size(40, 40), // Define o tamanho do ícone.
+      };
+    } else {
+      markerIcon = {
+        url: '/static/img/map_redmarker.png',
+        scaledSize: new google.maps.Size(40, 40), // Define o tamanho do ícone.
+      };
+    }
+
+    var marker = new google.maps.Marker({
+      position: location,
+      map: mapObj,
+      icon: markerIcon, // Define o ícone do marcador para a imagem selecionada
+      title: "{{ ponto.nome_host }}"
+    });
+    
+  {% endfor %}
+
+  var minLatitude = Math.min(...latitudes);
+  var maxLatitude = Math.max(...latitudes);
+  var minLongitude = Math.min(...longitudes);
+  var maxLongitude = Math.max(...longitudes);
+
+  var bounds = new google.maps.LatLngBounds(
+    new google.maps.LatLng(minLatitude, minLongitude),
+    new google.maps.LatLng(maxLatitude, maxLongitude)
+  );
+
+  // Ajusta o zoom e o centro do mapa para os limites das latitudes e longitudes
+  mapObj.fitBounds(bounds);
+
+  // Armazene a referência ao objeto 'mapObj' em 'window.map'
+  window.map = {
+    map: mapObj
+  };
+}
+
+  
 </script>
-
 {% endblock %}

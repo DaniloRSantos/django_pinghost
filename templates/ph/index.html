@@ -23,7 +23,9 @@
                 <td><h5 class="h5-index">{{ host.nome_host }}</h5></td>
                 <td><h5 class="h5-index">{{ host.dns_host}}</h5></td>
                 <td><h5 class="h5-index">{{ host.ip_host }}</h5></td>
-                <td><h5 class="h5-index">
+                <td><h5 class="h5-index" id="status-host-{{ host.id }}"><img src="{% static 'img/loading.gif' %}"</h5></td>
+
+                <!--<td><h5 class="h5-index">
                     {% if host.status_host == 1 %}
                         <img src="{% static 'img/ativo.png' %}" alt="Ativo">
                     {% elif host.status_host == 0 %}
@@ -31,7 +33,7 @@
                     {% else %}
                         <img src="{% static 'img/loading.gif' %}" alt="Carregando">
                     {% endif %}
-                </h5></td>
+                </h5></td>-->
             </tr>
             {% endfor %}
 
@@ -60,4 +62,36 @@
 
 
     <script src="{% static 'js/script.js' %}"></script>
+
+    <script>
+        atualizaStatusHosts();
+                //Função para atualizar o status dos servidores:
+        function atualizaStatusHosts() {
+          console.log('atualizaStatusHosts foi chamado');
+          fetch('/atualiza_host/', {
+              method: 'GET',
+              headers: {
+                  'X-CSRFToken': getCookie('csrftoken')
+              },
+          })
+          .then(response => response.json())
+            .then(data => {
+              data.hosts.forEach(function(host) {
+                  const hostElement = document.getElementById('status-host-' + host.id);
+                  if (host.status_host) {
+                      hostElement.innerHTML = '<img src="/static/img/ativo.png" alt="Ativo">';
+                  } else {
+                      hostElement.innerHTML = '<img src="/static/img/inativo.png" alt="Inativo">';
+                  }
+              });
+          })
+          .catch(error => console.error('Erro ao buscar status dos hosts:', error));
+        }
+        
+        // Chame a função a cada 10 segundos (ou qualquer outro intervalo que você desejar)
+        setInterval(atualizaStatusHosts, 120000);
+        
+        window.atualizaStatusHosts = atualizaStatusHosts;
+        
+    </script>
 {% endblock %}
