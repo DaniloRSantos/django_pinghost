@@ -5,7 +5,7 @@
 <div class="div-map" id="div-map"></div>
 
 <script src="{% static 'js/script.js' %}"></script>
-
+<script src="https://unpkg.com/@google/markerclustererplus@4.0.1/dist/markerclustererplus.min.js"></script>
 
 <script>
   // Faça uma solicitação AJAX para obter a chave da API do servidor
@@ -13,7 +13,8 @@
     .then(response => response.json())
     .then(data => {
       const api_key = data.api_key;
-      // Seu código JavaScript que usa a chave da API aqui
+
+      // Carrega a API do Google Maps e inicia a função initMap
       const script = document.createElement('script');
       script.src = `https://maps.googleapis.com/maps/api/js?key=${api_key}&callback=initMap`;
       script.async = true;
@@ -23,75 +24,61 @@
     .catch(error => {
       console.error("Erro ao obter a chave da API:", error);
     });
-</script>
 
-<script>
   function initMap() {
-    // Crie um novo mapa e vincule-o à div com o ID "div-map"
+    // Cria um novo mapa
     const mapObj = new google.maps.Map(document.getElementById("div-map"), {
-      styles: [
-        {
-          featureType: "poi",
-          stylers: [{ visibility: "off" }]
-        }
-      ]
+      styles: [{ featureType: "poi", stylers: [{ visibility: "off" }] }]
     });
 
     var latitudes = [];
     var longitudes = [];
+    var blueMarkers = [];
+    var redMarkers = [];
 
+    // Itera pelos pontos e cria marcadores para cada um
     {% for ponto in host_data %}
-      // Criar marcador para cada ponto
       var latitude = parseFloat("{{ ponto.latitude }}".replace(',', '.'));
       var longitude = parseFloat("{{ ponto.longitude }}".replace(',', '.'));
       var status = {{ ponto.status_host|lower }};
-      console.log("Valor de status = " & status)
 
       latitudes.push(latitude);
       longitudes.push(longitude);
 
       var location = new google.maps.LatLng(latitude, longitude);
-      var markerIcon = '';
-      var markerZIndex = 1; // zIndex padrão
-      if (status) {
-        markerIcon = {
-          url: '/static/img/map_bluemarker.png',
-          scaledSize: new google.maps.Size(50, 50), // Define o tamanho do ícone.
-        };
-      } else {
-        markerIcon = {
-          url: '/static/img/map_redmarker.png',
-          scaledSize: new google.maps.Size(40, 40), // Define o tamanho do ícone.
-        };
-        markerZIndex = 2; // zIndex maior para marcadores vermelhos
-      }
+      var markerIcon = status ? '/static/img/map_bluemarker.png' : '/static/img/map_redmarker.png';
 
       var marker = new google.maps.Marker({
         position: location,
-        map: mapObj,
-        icon: markerIcon, // Define o ícone do marcador para a imagem selecionada
-        title: "{{ ponto.nome_host }}",
-        zIndex: markerZIndex // Define o zIndex do marcador
+        icon: { url: markerIcon, scaledSize: new google.maps.Size(40, 40) },
+        title: "{{ ponto.nome_host }}"
       });
+
+      // Adiciona o marcador ao cluster apropriado
+      status ? blueMarkers.push(marker) : redMarkers.push(marker);
     {% endfor %}
 
-    var minLatitude = Math.min(...latitudes);
-    var maxLatitude = Math.max(...latitudes);
-    var minLongitude = Math.min(...longitudes);
-    var maxLongitude = Math.max(...longitudes);
+    // Cria clusters para os marcadores
+    var redCluster = new MarkerClusterer(mapObj, redMarkers, {
+      imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
+      styles: [{
+        url: '/static/img/redclusterimage.png',
+        height: 40,
+        width: 40
+      }]
+    });
+    var blueCluster = new MarkerClusterer(mapObj, blueMarkers, {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
 
+
+    // Define os limites do mapa para abranger todos os marcadores
     var bounds = new google.maps.LatLngBounds(
-      new google.maps.LatLng(minLatitude, minLongitude),
-      new google.maps.LatLng(maxLatitude, maxLongitude)
+      new google.maps.LatLng(Math.min(...latitudes), Math.min(...longitudes)),
+      new google.maps.LatLng(Math.max(...latitudes), Math.max(...longitudes))
     );
-
-    // Ajusta o zoom e o centro do mapa para os limites das latitudes e longitudes
     mapObj.fitBounds(bounds);
 
-    // Armazene a referência ao objeto 'mapObj' em 'window.map'
-    window.map = {
-      map: mapObj
-    };
+    window.map = { map: mapObj };
   }
 </script>
+
 {% endblock %}

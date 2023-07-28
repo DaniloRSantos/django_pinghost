@@ -1,5 +1,7 @@
 from django.urls import path
 from ph import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('', views.index, name='index'),
@@ -9,4 +11,4 @@ urlpatterns = [
     path('api-key/', views.get_api_key, name='api_key'),
     path('mapa/', views.mapa, name='mapa'),
     path('atualiza_host/', views.atualiza_host, name='atualiza_host'),
-]
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
