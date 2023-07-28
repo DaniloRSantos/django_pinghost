@@ -24,16 +24,6 @@
                 <td><h5 class="h5-index">{{ host.dns_host}}</h5></td>
                 <td><h5 class="h5-index">{{ host.ip_host }}</h5></td>
                 <td><h5 class="h5-index" id="status-host-{{ host.id }}"><img src="{% static 'img/loading.gif' %}"</h5></td>
-
-                <!--<td><h5 class="h5-index">
-                    {% if host.status_host == 1 %}
-                        <img src="{% static 'img/ativo.png' %}" alt="Ativo">
-                    {% elif host.status_host == 0 %}
-                        <img src="{% static 'img/inativo.png' %}" alt="Inativo">
-                    {% else %}
-                        <img src="{% static 'img/loading.gif' %}" alt="Carregando">
-                    {% endif %}
-                </h5></td>-->
             </tr>
             {% endfor %}
 
@@ -67,7 +57,7 @@
         atualizaStatusHosts();
                 //Função para atualizar o status dos servidores:
         function atualizaStatusHosts() {
-          console.log('atualizaStatusHosts foi chamado');
+          //console.log('atualizaStatusHosts foi chamado');
           fetch('/atualiza_host/', {
               method: 'GET',
               headers: {

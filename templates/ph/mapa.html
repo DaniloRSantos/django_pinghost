@@ -26,68 +26,72 @@
 </script>
 
 <script>
-  
   function initMap() {
-  // Crie um novo mapa e vincule-o à div com o ID "div-map"
-  const mapObj = new google.maps.Map(document.getElementById("div-map"), {
-    zoom: 4.1,
-  });
-
-  var latitudes = [];
-  var longitudes = [];
-
-  {% for ponto in host_data %}
-    // Criar marcador para cada ponto
-    var latitude = parseFloat("{{ ponto.latitude }}".replace(',', '.'));
-    var longitude = parseFloat("{{ ponto.longitude }}".replace(',', '.'));
-    var status = {{ ponto.status_host|lower }};
-    console.log("Valor de status = " & status)
-
-    latitudes.push(latitude);
-    longitudes.push(longitude);
-
-    var location = new google.maps.LatLng(latitude, longitude);
-    var markerIcon = '';
-    if (status) {
-      markerIcon = {
-        url: '/static/img/map_greenmarker.png',
-        scaledSize: new google.maps.Size(40, 40), // Define o tamanho do ícone.
-      };
-    } else {
-      markerIcon = {
-        url: '/static/img/map_redmarker.png',
-        scaledSize: new google.maps.Size(40, 40), // Define o tamanho do ícone.
-      };
-    }
-
-    var marker = new google.maps.Marker({
-      position: location,
-      map: mapObj,
-      icon: markerIcon, // Define o ícone do marcador para a imagem selecionada
-      title: "{{ ponto.nome_host }}"
+    // Crie um novo mapa e vincule-o à div com o ID "div-map"
+    const mapObj = new google.maps.Map(document.getElementById("div-map"), {
+      styles: [
+        {
+          featureType: "poi",
+          stylers: [{ visibility: "off" }]
+        }
+      ]
     });
-    
-  {% endfor %}
 
-  var minLatitude = Math.min(...latitudes);
-  var maxLatitude = Math.max(...latitudes);
-  var minLongitude = Math.min(...longitudes);
-  var maxLongitude = Math.max(...longitudes);
+    var latitudes = [];
+    var longitudes = [];
 
-  var bounds = new google.maps.LatLngBounds(
-    new google.maps.LatLng(minLatitude, minLongitude),
-    new google.maps.LatLng(maxLatitude, maxLongitude)
-  );
+    {% for ponto in host_data %}
+      // Criar marcador para cada ponto
+      var latitude = parseFloat("{{ ponto.latitude }}".replace(',', '.'));
+      var longitude = parseFloat("{{ ponto.longitude }}".replace(',', '.'));
+      var status = {{ ponto.status_host|lower }};
+      console.log("Valor de status = " & status)
 
-  // Ajusta o zoom e o centro do mapa para os limites das latitudes e longitudes
-  mapObj.fitBounds(bounds);
+      latitudes.push(latitude);
+      longitudes.push(longitude);
 
-  // Armazene a referência ao objeto 'mapObj' em 'window.map'
-  window.map = {
-    map: mapObj
-  };
-}
+      var location = new google.maps.LatLng(latitude, longitude);
+      var markerIcon = '';
+      var markerZIndex = 1; // zIndex padrão
+      if (status) {
+        markerIcon = {
+          url: '/static/img/map_bluemarker.png',
+          scaledSize: new google.maps.Size(50, 50), // Define o tamanho do ícone.
+        };
+      } else {
+        markerIcon = {
+          url: '/static/img/map_redmarker.png',
+          scaledSize: new google.maps.Size(40, 40), // Define o tamanho do ícone.
+        };
+        markerZIndex = 2; // zIndex maior para marcadores vermelhos
+      }
 
-  
+      var marker = new google.maps.Marker({
+        position: location,
+        map: mapObj,
+        icon: markerIcon, // Define o ícone do marcador para a imagem selecionada
+        title: "{{ ponto.nome_host }}",
+        zIndex: markerZIndex // Define o zIndex do marcador
+      });
+    {% endfor %}
+
+    var minLatitude = Math.min(...latitudes);
+    var maxLatitude = Math.max(...latitudes);
+    var minLongitude = Math.min(...longitudes);
+    var maxLongitude = Math.max(...longitudes);
+
+    var bounds = new google.maps.LatLngBounds(
+      new google.maps.LatLng(minLatitude, minLongitude),
+      new google.maps.LatLng(maxLatitude, maxLongitude)
+    );
+
+    // Ajusta o zoom e o centro do mapa para os limites das latitudes e longitudes
+    mapObj.fitBounds(bounds);
+
+    // Armazene a referência ao objeto 'mapObj' em 'window.map'
+    window.map = {
+      map: mapObj
+    };
+  }
 </script>
 {% endblock %}

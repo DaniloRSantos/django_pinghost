@@ -6,7 +6,7 @@ import requests
 from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.contrib import messages
-from ph.models import EnderecoBusca, Hosts
+from ph.models import EnderecoBusca, Hosts, Eventos
 from django.http import JsonResponse
 from dotenv import load_dotenv
 
@@ -20,9 +20,9 @@ logger = logging.getLogger(__name__)
 def check_availability(ip_address):
     try:
         socket.create_connection((ip_address, 80), timeout=1)
-        return True
-    except Exception:
-        return False
+        return True, None
+    except Exception as e:
+        return False, str(e)
     
 
 def carregar_coordenadas(request):
@@ -79,21 +79,20 @@ def get_api_key(request):
 
 def atualiza_host(request):
         hosts = Hosts.objects.all()
+        
 
         # Iterar pelos objetos de Hosts e atualizar as colunas desejadas
         for host in hosts:
             endereco_ip = host.ip_host  # Obter o endereço IP do objeto Host
 
             # Verificar a disponibilidade do host usando a função check_availability
-            host_disponivel = check_availability(endereco_ip)
-            if host_disponivel:
-                # Se o ping for bem-sucedido, atualizar o status do host para True
-                host.status_host = True
+            host_disponivel, error_message = check_availability(endereco_ip)
 
-            else:
-                # Se o ping falhar, atualizar o status do host para False
-                host.status_host = False
+            evento = Eventos(host=host, success=host_disponivel, error_message=error_message)
+            evento.save()
 
+            host.status_host = host_disponivel
+            
             host.time_host = timezone.now()
             host.save()  # Salvar as alterações no objeto Host
 

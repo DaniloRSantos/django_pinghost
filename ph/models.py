@@ -26,3 +26,12 @@ class EnderecoBusca(models.Model):
     @property
     def endereco_completo(self):
         return f"{self.logradouro}, {self.numero}, {self.complemento}, {self.bairro}, {self.cidade}, {self.estado}"
+    
+class Eventos(models.Model):
+    timestamp = models.DateTimeField(auto_now_add=True)
+    host = models.ForeignKey(Hosts, on_delete=models.CASCADE, related_name='link_events')
+    error_message = models.TextField(blank=True, null=True)
+    success = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"Host: {self.host.nome_host}, Time: {self.timestamp}, Success: {self.success}, Error: {self.error_message}"
