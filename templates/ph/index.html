@@ -78,8 +78,7 @@
           .catch(error => console.error('Erro ao buscar status dos hosts:', error));
         }
         
-        // Chame a função a cada 10 segundos (ou qualquer outro intervalo que você desejar)
-        setInterval(atualizaStatusHosts, 30000);
+        setInterval(atualizaStatusHosts, {{ interval_minutes }});
         
         window.atualizaStatusHosts = atualizaStatusHosts;
         

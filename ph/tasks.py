@@ -8,7 +8,8 @@ from django.utils import timezone
 from ph.models import Hosts, Eventos
 from django.http import JsonResponse,HttpResponse, HttpResponseBadRequest
 from dotenv import load_dotenv
-from django.views.decorators.csrf import csrf_exempt
+from django.core.mail import send_mail
+from django.conf import settings
 
 load_dotenv()
 api_key = os.getenv('API_KEY')
@@ -131,24 +132,46 @@ def check_availability(ip_address):
     except Exception as e:
         return False, str(e)
     
-
+def envia_email(assunto, conteudo):
+    send_mail(assunto, conteudo, settings.EMAIL_HOST_USER, [settings.DEFAUT_FROM_EMAIL])
+    
 #Tarefas agendadas:
 def atualiza_host_sched():
     hosts = Hosts.objects.all()
-
+    def update():
+        host.time_host = timezone.now()
+        host.status_host = result_ping
+        host.save()
+        evento = Eventos(host=host, success=result_ping, error_message=error_message)
+        evento.save()
+    
+    def calc_temp():
+        intervalo_tempo = timezone.now() - host.time_host
+        dia = str(intervalo_tempo.days)
+        horas = str(intervalo_tempo.seconds // 3600)
+        minutos = str((intervalo_tempo.seconds // 60) % 60)
+        return (dia, horas, minutos)
     # Iterar pelos objetos de Hosts e atualizar as colunas desejadas
     for host in hosts:
-        endereco_ip = host.ip_host  # Obter o endereço IP do objeto Host
-
-        # Verificar a disponibilidade do host usando a função check_availability
-        host_disponivel, error_message = check_availability(endereco_ip)
-
-        evento = Eventos(host=host, success=host_disponivel, error_message=error_message)
-        evento.save()
-
-        host.status_host = host_disponivel
         
-        host.time_host = timezone.now()
-        host.save()  # Salvar as alterações no objeto Host
+        result_ping, error_message = check_availability(host.ip_host)
 
-        
+
+
+        if host.status_host == 1 and result_ping == 0 :            
+            print( "Queda host: " + host.nome_host )
+            update()
+            envia_email('Queda host '+ host.nome_host ,' O host de IP '+ host.ip_host + ' está sem comunicação.' + '\nHorário da queda: ' + str(host.time_host)[:-6] )
+
+            
+        elif host.status_host == 0 and result_ping == 1 :
+            print("Retomada da comunicação: " + host.nome_host)
+            dia, horas, minutos = calc_temp()
+            print("comunicação restabelecida após " + dia + " dias, "+ horas + " horas e " + minutos+ " minutos sem comunicação.")
+            update()
+
+            
+        else:
+            if host.status_host == 0 and result_ping == 0:
+                dia, horas, minutos = calc_temp()                
+                print("sem comunicação ha " + dia + " dias, "+ horas + " horas e " + minutos+ " minutos.")     

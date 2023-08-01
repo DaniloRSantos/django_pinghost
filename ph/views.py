@@ -6,6 +6,7 @@ from ph.tasks import check_availability
 from dotenv import load_dotenv
 from django.utils import timezone
 from django.contrib import messages
+from django.conf import settings
 
 load_dotenv()
 api_key = os.getenv('API_KEY')
@@ -16,6 +17,7 @@ def index(request):
     hosts = Hosts.objects.all()
 
     context = {
+        'interval_minutes': settings.BROWSER_UPDATE,
         'hosts': hosts,
         'imagem_inicial': 'loading.gif',
         'api_key': api_key,  
@@ -113,6 +115,7 @@ def mapa(request):
             host.save()
 
             host_data.append({
+                'interval_minutes': settings.BROWSER_UPDATE,
                 'latitude': latitude,
                 'longitude': longitude,
                 'nome_host': host.nome_host,

@@ -7,6 +7,7 @@ class Hosts(models.Model):
     categoria_host = models.CharField(max_length=150, null=False, blank=False)
     status_host = models.BooleanField(default=False)
     time_host = models.DateTimeField(blank=True, null=True)
+    
 
     def __str__(self):
         return f"Nome: {self.nome_host}, IP: {self.ip_host}, DNS: {self.dns_host}, Categoria: {self.categoria_host}, Status: {self.status_host} Data/Hora: {self.time_host}, Data/Hora: {self.time_host}"
