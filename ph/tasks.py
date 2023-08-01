@@ -1,23 +1,55 @@
 import socket
 import os
 import requests
-from django.shortcuts import render,redirect
+from django.shortcuts import redirect
 import logging
 from django.contrib import messages
 from django.utils import timezone
 from ph.models import Hosts, Eventos
-from django.http import JsonResponse
+from django.http import JsonResponse,HttpResponse, HttpResponseBadRequest
 from dotenv import load_dotenv
+from django.views.decorators.csrf import csrf_exempt
+
 load_dotenv()
 api_key = os.getenv('API_KEY')
 logger = logging.getLogger(__name__)
 
-def atualiza_host(request):
-        hosts = Hosts.objects.all()
-        
-        # Obter todos os objetos de Hosts novamente após as atualizações
-        hosts = Hosts.objects.all().values('id', 'status_host')
-        return JsonResponse({'hosts': list(hosts)})
+def carrega_host(request):
+    hosts = Hosts.objects.all()
+    
+    # Obter todos os objetos de Hosts novamente após as atualizações
+    hosts = Hosts.objects.all().values('id', 'status_host')
+    return JsonResponse({'hosts': list(hosts)})
+
+
+def atualizar_host(request):
+    if request.method == 'POST':
+        host_id = request.POST.get('host_id')
+        host = Hosts.objects.get(id=host_id)
+        host.ip_host = request.POST.get('ip_host')
+        host.dns_host = request.POST.get('dns_host')
+        host.nome_host = request.POST.get('nome_host')
+        host.categoria_host = request.POST.get('categoria_host')
+        test = check_availability(host.ip_host)
+        host.status_host = test[0]
+        host.save()
+
+        endereco = host.enderecos.first() 
+        endereco.cep = request.POST.get('cep')
+        endereco.logradouro = request.POST.get('logradouro')
+        endereco.numero = request.POST.get('numero')
+        endereco.complemento = request.POST.get('complemento')
+        endereco.bairro = request.POST.get('bairro')
+        endereco.cidade = request.POST.get('cidade')
+        endereco.estado = request.POST.get('estado')
+        endereco.latitude = request.POST.get('latitude')
+        endereco.longitude = request.POST.get('longitude')
+        endereco.save()
+        return HttpResponse(status=204)
+
+    return HttpResponseBadRequest()
+
+
 
 def carregar_coordenadas(request):
     if request.method == 'POST':
@@ -70,67 +102,7 @@ def get_api_key(request):
 
 
 
-def cadastrar_host(request):
-    
-    logger.info(f'Received POST request: {request.POST}')
 
-    if request.method == 'POST':
-        # Obter os dados enviados pelo formulário para o host
-        ip_host = request.POST['ip_host']
-        dns_host = request.POST['dns_host']
-        nome_host = request.POST['nome_host']
-        categoria_host = request.POST['categoria_host']
-
-        # Criar um novo objeto Hosts com os dados fornecidos
-        novo_host = Hosts.objects.create(
-            ip_host=ip_host,
-            dns_host=dns_host,
-            nome_host=nome_host,
-            categoria_host=categoria_host,
-            time_host=timezone.now(),
-        )
-        
-        # Obter os dados enviados pelo formulário para o endereço
-        cep = request.POST['cep']
-        logradouro = request.POST['logradouro']
-        numero = request.POST['numero']
-        complemento = request.POST['complemento']
-        bairro = request.POST['bairro']
-        cidade = request.POST['cidade']
-        estado = request.POST['estado']
-        latitude = request.POST['latitude']
-        longitude = request.POST['longitude']
-
-  
-
-        # Criar um novo objeto EnderecoBusca com os dados fornecidos
-        novo_endereco = EnderecoBusca.objects.create(
-            cep=cep,
-            logradouro=logradouro,
-            numero=numero,
-            complemento=complemento,
-            bairro=bairro,
-            cidade=cidade,
-            estado=estado,
-            latitude=latitude,
-            longitude=longitude,
-            host_id=novo_host
-
-        )
-
-
-        # Associar o endereço criado ao host
-        novo_host.enderecos.add(novo_endereco)
-        
-        #Exibir mensagem de sucesso
-        messages.success(request, 'Host cadastrado com sucesso!')
-
-        # Redirecionar para a página de sucesso ou fazer o processamento necessário
-
-    context = {
-        'api_key': api_key
-    }
-    return render(request, 'ph/cadastro_host.html', context)
 
 def excluir_hosts(request):
     if request.method == 'POST':

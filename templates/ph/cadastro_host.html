@@ -77,66 +77,133 @@
     <div id="error-message" class="message error-message" style="display: none;"></div>
   
 
-    <script src="{% static 'js/script.js' %}"></script>
-    <script>
-      // Faça uma solicitação AJAX para obter a chave da API do servidor
-      fetch("{% url 'api_key' %}")
-        .then(response => response.json())
-        .then(data => {
-          const api_key = data.api_key;
-          // Seu código JavaScript que usa a chave da API aqui
-          const script = document.createElement('script');
-          script.src = `https://maps.googleapis.com/maps/api/js?key=${api_key}&callback=initMap`;
-          script.async = true;
-          script.defer = true;
-          document.head.appendChild(script);
-        })
-        .catch(error => {
-          console.error("Erro ao obter a chave da API:", error);
-        });
-    </script>
-    
-    <script>
-      function initMap() {
-        // Define as coordenadas iniciais do mapa
-        const initialCoords = { lat: -23.5505, lng: -46.6333 };
-    
-        // Crie um novo mapa e vincule-o à div com o ID "map-cadastro"
-        const map = new google.maps.Map(document.getElementById("map-cadastro"), {
-          center: initialCoords,
-          zoom: 20,
-          mapTypeId: google.maps.MapTypeId.ROADMAP
-        });
-     
-        // Adicione um marcador no mapa
-        const marker = new google.maps.Marker({
-          position: initialCoords,
-          map: map,
-          draggable: true, // Permita que o marcador seja arrastado pelo usuário
-          
-        });
-    
-        // Evento de arrastar do marcador
-        marker.addListener("dragend", () => {
-          // Obtenha as novas coordenadas do marcador
-          const newCoords = marker.getPosition();
-          const latitude = newCoords.lat();
-          const longitude = newCoords.lng();
-    
-          // Preencha os campos de latitude e longitude com as novas coordenadas
-          document.getElementById("latitude").value = latitude;
-          document.getElementById("longitude").value = longitude;
-        });
-        // Armazene a referência ao objeto 'map' em 'window.map'
-        window.map = {
-        map: map,
-        marker: marker
-        };
+<script src="{% static 'js/script.js' %}"></script>
 
+<script>
+  const btnLocalizacao = document.querySelector('#btn-carregar-coordenada');
+  btnLocalizacao.addEventListener('click', () => {
+  console.log('Botão clicado');
+  if (btnLocalizacao) {
+    console.log('Botão localização detectado');
+    // Obter os valores dos campos de endereço
+    console.log("testando");
+    const cep = document.getElementById('cep').value;
+    const logradouro = document.getElementById('logradouro').value;
+    const numero = document.getElementById('numero').value;
+    const complemento = document.getElementById('complemento').value;
+    const bairro = document.getElementById('bairro').value;
+    const cidade = document.getElementById('cidade').value;
+    const estado = document.getElementById('estado').value;
+
+    // Logar os valores dos campos
+    console.log('cep:', cep);
+    console.log('logradouro:', logradouro);
+    console.log('numero:', numero);
+    console.log('complemento:', complemento);
+    console.log('bairro:', bairro);
+    console.log('cidade:', cidade);
+    console.log('estado:', estado);
+
+    // Criar um objeto com os dados do formulário
+    const formData = {
+      cep: cep,
+      logradouro: logradouro,
+      numero: numero,
+      complemento: complemento,
+      bairro: bairro,
+      cidade: cidade,
+      estado: estado
+    };
+    
+    // Enviar uma requisição POST para a URL de cadastro
+    console.log('Enviando requisição POST para /carregar_coordenadas/');
+    fetch('/carregar_coordenadas/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: new URLSearchParams(formData).toString()
+    })
+    .then(response => {
+      console.log('Resposta recebida', response);
+      return response.json();
+    })
+    .then(data => {
+      console.log('Dados recebidos:', data);
+      if (data.latitude && data.longitude) {
+        console.log('Preenchendo coordenadas com latitude:', data.latitude, 'e longitude:', data.longitude);
+        // Preencher os campos de latitude e longitude com os valores recebidos
+        preencherCoordenadas(data.latitude, data.longitude);
+      } else {
+        console.error('Erro ao obter as coordenadas do endereço.');
       }
+    })
+    .catch(error => {
+      console.error('Erro na requisição:', error);
+    });
+  } else {
+    console.log('Botão localização não detectado');
+  }
+});
+</script>
 
+<script>
+  // Faça uma solicitação AJAX para obter a chave da API do servidor
+  fetch("{% url 'api_key' %}")
+    .then(response => response.json())
+    .then(data => {
+      const api_key = data.api_key;
+      // Seu código JavaScript que usa a chave da API aqui
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${api_key}&callback=initMap`;
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
+    })
+    .catch(error => {
+      console.error("Erro ao obter a chave da API:", error);
+    });
+</script>
+
+<script>
+  function initMap() {
+    // Define as coordenadas iniciais do mapa
+    const initialCoords = { lat: -23.5505, lng: -46.6333 };
+
+    // Crie um novo mapa e vincule-o à div com o ID "map-cadastro"
+    const map = new google.maps.Map(document.getElementById("map-cadastro"), {
+      center: initialCoords,
+      zoom: 20,
+      mapTypeId: google.maps.MapTypeId.ROADMAP
+    });
  
-    </script>
+    // Adicione um marcador no mapa
+    const marker = new google.maps.Marker({
+      position: initialCoords,
+      map: map,
+      draggable: true, // Permita que o marcador seja arrastado pelo usuário
+      
+    });
+
+    // Evento de arrastar do marcador
+    marker.addListener("dragend", () => {
+      // Obtenha as novas coordenadas do marcador
+      const newCoords = marker.getPosition();
+      const latitude = newCoords.lat();
+      const longitude = newCoords.lng();
+
+      // Preencha os campos de latitude e longitude com as novas coordenadas
+      document.getElementById("latitude").value = latitude;
+      document.getElementById("longitude").value = longitude;
+    });
+    // Armazene a referência ao objeto 'map' em 'window.map'
+    window.map = {
+    map: map,
+    marker: marker
+    };
+  }
+</script>
 
 
 {% endblock %}

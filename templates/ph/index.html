@@ -42,9 +42,9 @@
             <button id="btn-excluir" style="display:none;" onclick="excluirHosts(); return false;">Excluir</button>
             
         </form>
-        <form id="form-editar-hosts" method="POST" action="#">
+        <form id="form-editar-hosts" method="POST" action="{% url 'retorna_host' %}">
             {% csrf_token %}
-            <input type="hidden" name="host_ids" id="host-ids" value="">
+            <input type="hidden" name="host_id" id="host-id" value="">
             <button id="btn-editar" style="display:none;" onclick="editarHost(); return false;">Editar</button>
             
         </form>
@@ -58,7 +58,7 @@
                 //Função para atualizar o status dos servidores:
         function atualizaStatusHosts() {
           //console.log('atualizaStatusHosts foi chamado');
-          fetch('/atualiza_host/', {
+          fetch('/carrega_host/', {
               method: 'GET',
               headers: {
                   'X-CSRFToken': getCookie('csrftoken')
@@ -79,9 +79,11 @@
         }
         
         // Chame a função a cada 10 segundos (ou qualquer outro intervalo que você desejar)
-        setInterval(atualizaStatusHosts, 120000);
+        setInterval(atualizaStatusHosts, 30000);
         
         window.atualizaStatusHosts = atualizaStatusHosts;
         
     </script>
+
+    
 {% endblock %}

@@ -207,7 +207,7 @@ button {
   button:hover {
     background-color: #3e8e41;
   }
-#btn-incluir {
+  #btn-incluir {
     background-color: #008CBA;
   }
   
@@ -215,6 +215,16 @@ button {
     background-color: #007a9b;
   }
   
+  #btn-atualizar {
+    background-color: #008CBA;
+  }
+  
+  #btn-atualizar:hover {
+    background-color: #007a9b;
+  }
+
+
+
   #btn-excluir {
     background-color: #f44336;
   }
