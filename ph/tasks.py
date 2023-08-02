@@ -126,8 +126,16 @@ def excluir_hosts(request):
     return redirect('index')
 
 def check_availability(ip_address):
+    # verifica se a porta está especificada no endereço IP
+    if ':' in ip_address:
+        host, port = ip_address.split(':')
+        port = int(port)  # converte a porta para um número inteiro
+    else:
+        host = ip_address
+        port = 80  # usa a porta 80 como padrão se não for especificada
+
     try:
-        socket.create_connection((ip_address, 80), timeout=1)
+        socket.create_connection((host, port), timeout=1)
         return True, None
     except Exception as e:
         return False, str(e)
@@ -162,16 +170,13 @@ def atualiza_host_sched():
             print( "Queda host: " + host.nome_host )
             update()
             envia_email('Queda host '+ host.nome_host ,' O host de IP '+ host.ip_host + ' está sem comunicação.' + '\nHorário da queda: ' + str(host.time_host)[:-6] )
-
-            
         elif host.status_host == 0 and result_ping == 1 :
             print("Retomada da comunicação: " + host.nome_host)
             dia, horas, minutos = calc_temp()
-            print("comunicação restabelecida após " + dia + " dias, "+ horas + " horas e " + minutos+ " minutos sem comunicação.")
+            print("Comunicação " +host.nome_host+ " restabelecida após " + dia + " dias, "+ horas + " horas e " + minutos+ " minutos sem comunicação.")
             update()
-
-            
+            envia_email("Comunicação " + host.nome_host +  ' restabelecida.','Comunicação ' +host.ip_host+ ' restabelecida após ' + dia + ' dias, '+ horas + ' horas e ' + minutos+ ' minutos sem comunicação.' )
         else:
             if host.status_host == 0 and result_ping == 0:
                 dia, horas, minutos = calc_temp()                
-                print("sem comunicação ha " + dia + " dias, "+ horas + " horas e " + minutos+ " minutos.")     
+                print("Host "+host.nome_host+ " sem comunicação ha " + dia + " dias, "+ horas + " horas e " + minutos+ " minutos.")     
