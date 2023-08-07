@@ -13,5 +13,6 @@ urlpatterns = [
     path('carrega_host/', tasks.carrega_host, name='carrega_host'),    
     path('editar_host/', views.editar_host, name='retorna_host'),
     path('atualizar_host/', tasks.atualizar_host, name='atualizar_host'),
+    path('dashboard/',views.dashboard, name='dashboard')
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 

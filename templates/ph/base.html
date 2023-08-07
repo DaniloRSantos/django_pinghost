@@ -17,6 +17,7 @@
       <ul class="op-men-lat">
         <li><a href="{% url 'index' %}" {% if request.path == '/' %}class="active"{% endif %}>Hosts</a></li>
         <li><a href="{% url 'mapa' %}" {% if request.path == '/mapa/' %}class="active"{% endif %}>Mapa</a></li>
+        <li><a href="{% url 'dashboard' %}" {% if request.path == '/dashboard/' %}class="active"{% endif %}>Dashboard</a></li>
       </ul>
       <p class="rights">Ping Host<sup>&reg;</sup></p>
     </nav>

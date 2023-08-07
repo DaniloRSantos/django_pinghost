@@ -1,0 +1,68 @@
+{% extends 'ph/base.html' %}
+{% load static %}
+{% block content %}
+
+<h2 class="index-titulo-principal">Hosts Cadastrados</h2>
+
+<div id="chart-container">
+    <canvas id="myChart"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment"></script>
+<script>
+    // Use |escapejs para escapar quaisquer caracteres que possam ser problemáticos em uma string JavaScript
+    const hostsEventos = JSON.parse('{{ hosts_eventos|escapejs }}');
+    console.log(hostsEventos);
+    window.onload = function() {
+        const labels = []; // array de timestamps
+        const data = [];   // array de status (1 para sucesso, 0 para falha)
+
+        // Percorra os dados dos hosts e eventos para preencher os arrays
+        hostsEventos.forEach(item => {
+            const eventos = item.eventos;
+
+            eventos.forEach(evento => {
+                labels.push(evento.timestamp);
+                data.push(evento.success ? 1 : 0);
+            });
+        });
+
+        const ctx = document.getElementById('myChart').getContext('2d');
+        const myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Status',
+                    data: data,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1,
+                    fill: false,
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        type: 'time', // define o eixo x como tempo
+                        time: {
+                            unit: 'day', // agrupa os dados por dia (ou 'hour', 'month', etc.)
+                            displayFormats: {
+                                day: 'DD/MM/YYYY', // formato da data exibida no eixo x
+                            }
+                        },
+                    },
+                    y: {
+                        beginAtZero: true, // define o mínimo do eixo y como 0
+                        ticks: {
+                            stepSize: 1, // define o intervalo entre os ticks do eixo y
+                        }
+                    }
+                }
+            }
+        });
+    }
+</script>
+
+{% endblock %}

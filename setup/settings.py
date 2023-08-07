@@ -157,7 +157,7 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 
 #Configurações de update de comunicação:
 
-INTERVAL_MINUTES = 5
+INTERVAL_MINUTES = 2
 
 #tempo de atualização do browser
 # 1 minuto é igual a 60000 milissegundos
@@ -170,4 +170,4 @@ INTERVAL_MINUTES = 5
 # 8 minutos são iguais a 480000 milissegundos
 # 9 minutos são iguais a 540000 milissegundos
 # 10 minutos são iguais a 600000 milissegundos
-BROWSER_UPDATE = 120000
+BROWSER_UPDATE = 60000
